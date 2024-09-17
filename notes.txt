@@ -1,0 +1,8 @@
+после устновки Pinia на Nuxt
+Cannot start nuxt:  Cannot find module 'pinia/dist/pinia.mjs'        
+
+npm i pinia -f
+
+
+
+npm i -D better-sqlite3

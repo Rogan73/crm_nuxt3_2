@@ -1,0 +1,4 @@
+<template>
+   <kanban />
+</template>
+
