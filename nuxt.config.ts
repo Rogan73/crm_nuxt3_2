@@ -6,12 +6,10 @@ export default defineNuxtConfig({
   alias: {
     '@': resolve(__dirname, './'),
   },
+  css: [
+    '@/assets/css/global.css'
+  ],
 
-  // TypeScript конфигурация
-  // typescript: {
-  //   strict: true,
-  //   typeCheck: true,
-  // },  
   compatibilityDate: '2024-04-03',
   devtools: { enabled: true },
   modules: [

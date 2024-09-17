@@ -86,9 +86,9 @@ export async function initializeDatabase() {
           step =7 
     
           await db.sql`INSERT INTO boards (name) VALUES ('MainBoard') `
-          await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'todo',1) `
-          await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'inprogress',2) `
-          await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'done',3) `
+          await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'To do',1) `
+          await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'In progress',2) `
+          await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'Done',3) `
           await db.sql`INSERT INTO specialties (name) VALUES ('Designer') `
           await db.sql`INSERT INTO persons (name,id_specialty,phone,email) VALUES ('ALEX',1,'322-223-322','mail@mail.com') `
           await db.sql`INSERT INTO tasks (id_board,id_column,name,description,id_person,order_index) VALUES (1,1,'Test Project','Create the design of project',1,1) `

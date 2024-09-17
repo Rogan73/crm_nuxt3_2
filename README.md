@@ -1,5 +1,5 @@
 # CRM
-## Nuxt 3, Pinia, Tailwind, WebSocket, Type script
+## Nuxt 3, Type script, Pinia, Tailwind, WebSocket, DB SQLite
 
 
 ## Setup

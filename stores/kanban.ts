@@ -103,7 +103,20 @@ export const useKanbanStore = defineStore("kanban", () => {
     }
 
 
+    const addNewTask = (columnId:String)=>{
+      console.log('addNewTask');
+      
+    }
 
+    const deleteTask=(taskId:String)=>{
+      console.log('deleteTask');
+
+    }
+
+    const  editTask =(taskId:String)=>{
+      console.log('editTask');
+
+    }
 
     return { 
         state,
@@ -111,6 +124,9 @@ export const useKanbanStore = defineStore("kanban", () => {
         removeBoard,
         editBoardName,
         getBoard,
-        moveTask
+        moveTask,
+        addNewTask,
+        deleteTask,
+        editTask,
     }
 })

@@ -15,6 +15,7 @@ export interface Board {
     id: number;
     id_board: number;
     id_column: number;
+    isOpen: boolean | false;
     name: string;
     description: string;
     id_person: number | null;
