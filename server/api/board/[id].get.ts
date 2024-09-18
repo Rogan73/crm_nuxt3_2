@@ -33,6 +33,11 @@ function processKanbanData(rows: RawKanbanRow | RawKanbanRow[]): Board[] {
       if (row.task_id !== null && row.task_name !== null && row.task_order !== null) {
         column.tasks.push({
           id: row.task_id,
+          id_board: row.board_id,
+          id_column: row.column_id,
+          id_person: row.person_id,
+          person_name: row.person_name,
+          state: row.state,
           name: row.task_name,
           description: row.task_description,
           order_index: row.task_order,
@@ -84,6 +89,8 @@ export default defineEventHandler(async (event) => {
                                     task.name AS task_name,
                                     task.description AS task_description,
                                     task.order_index AS task_order,
+                                    task.state,
+                                    task.id_person AS person_id,
                                     pers.name AS person_name,
                                     task.created_at AS task_created_at,
                                     task.inprogress_at AS task_inprogress_at,
@@ -105,6 +112,11 @@ export default defineEventHandler(async (event) => {
       column_id: row.column_id,
       column_name: row.column_name,
       column_order: row.column_order,
+
+      person_id: row.person_id,
+      person_name: row.person_name,
+      state: row.state,
+
       task_id: row.task_id,
       task_name: row.task_name,
       task_description: row.task_description,

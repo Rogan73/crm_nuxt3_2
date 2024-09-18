@@ -71,7 +71,7 @@ export async function initializeDatabase() {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             id_board INTEGER NOT NULL,
             id_column INTEGER NOT NULL,
-            status INTEGER NOT NULL,
+            state INTEGER NOT NULL,
             name TEXT NOT NULL,
             description TEXT,
             id_person INTEGER,
@@ -92,7 +92,7 @@ export async function initializeDatabase() {
           await db.sql`INSERT INTO columns (id_board,name,order_index) VALUES (1,'Done',3) `
           await db.sql`INSERT INTO specialties (name) VALUES ('Designer') `
           await db.sql`INSERT INTO persons (name,id_specialty,phone,email) VALUES ('ALEX',1,'322-223-322','mail@mail.com') `
-          await db.sql`INSERT INTO tasks (id_board,id_column,status,name,description,id_person,order_index) VALUES (1,1,1,'Test Project','Create the design of project. Lorem ipsum dolor sit amet consectetur adipisicing elit',1,1) `
+          await db.sql`INSERT INTO tasks (id_board,id_column,state,name,description,id_person,order_index) VALUES (1,1,1,'Test Project','Create the design of project. Lorem ipsum dolor sit amet consectetur adipisicing elit',1,1) `
           step =8 
         } catch (error) {
             console.error('Database setup error at step', step, ':', error);

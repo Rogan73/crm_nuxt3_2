@@ -20,6 +20,8 @@ export interface Board {
     name: string;
     description: string;
     id_person: number | null;
+    order_index: number;
+    
   }
   
   export interface Person {

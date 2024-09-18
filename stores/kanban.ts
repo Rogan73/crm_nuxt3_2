@@ -19,6 +19,7 @@ export const useKanbanStore = defineStore("kanban", () => {
     name: '',
     description: '',
     id_person: null,
+    order_index: 0
    })
 
 
@@ -170,7 +171,7 @@ const ShowAlert=(text:String)=>{
     const  editTask =(column_row:number,task_row:number)=>{
       console.log('editTask');
       
-      state.value.selected_task=state.value.boards[state.value.selected_board_row].columns[column_row].tasks[task_row]
+      state.value.selected_task={...state.value.boards[state.value.selected_board_row].columns[column_row].tasks[task_row]}
       state.value.title='Edit task'
       state.value.new_task=false
       router.push('/task')
@@ -182,10 +183,32 @@ const ShowAlert=(text:String)=>{
     router.push('/')
   }
 
-    const saveTask =()=>{
+
+    const sendUpdateTask = async (updatedData: any) => {
+
+    }
+
+
+    const saveTask =async()=>{
       console.log('saveTask to DB');
-      state.value.title=state.value.boards[state.value.selected_board_row].name //'Board'
-      router.push('/')
+
+      try {
+        
+        let res = await $fetch('/api/task', {
+          method: 'POST',
+          body: JSON.stringify(state.value.selected_task) ,
+        })
+
+       console.log('==res',res);
+       
+
+        state.value.title=state.value.boards[state.value.selected_board_row].name //'Board'
+        router.push('/')        
+        
+      } catch (error) {
+        console.error(`==Error updating board: ${state.value.selected_boardId}`, error)
+      }        
+
     }
 
 
