@@ -1,4 +1,13 @@
 <script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref,computed } from 'vue' 
+import { useKanbanStore } from '@/stores/kanban' 
+import InitWebSocket from '@/utils/WebSocket'
+
+const kanbanStore = useKanbanStore() 
+
+let socket: WebSocket | null = null;
+const messages = ref<string[]>([]);
+
 const pkg = await import('@/package.json')
 
 const colorMode =useColorMode()
@@ -6,6 +15,43 @@ const colorMode =useColorMode()
 const toggleColorMode = () => {
   colorMode.preference = colorMode.value === 'light' ? 'dark' : 'light'
 }
+
+
+onMounted(() => {
+
+
+
+// if (!boardId.value) {
+//   console.error('Board ID is not set, cannot connect to WebSocket')
+//   return
+// }
+
+
+const webSocketInstance = InitWebSocket();
+messages.value = webSocketInstance.messages.value;
+socket = webSocketInstance.socket;
+
+console.log('WebSocket initialized in onMounted');
+
+
+}) 
+
+
+const title=computed(()=>{
+  //const name=kanbanStore.state.boards.length > 0 ? kanbanStore.state.boards[kanbanStore.state.selected_board_row].name : ''
+ return `${kanbanStore.state.title}`
+})
+
+onBeforeUnmount(() => {
+
+if (socket) {
+  socket.close();
+  console.log('WebSocket connection closed');
+}
+
+
+})
+
 
 </script>
 
@@ -36,6 +82,10 @@ const toggleColorMode = () => {
       </select> -->
     </div>
     
+  <div class="uppercase text-2xl pr-2 text-slate-800 dark:text-slate-200">{{ title }}
+  </div> 
+
+
     <!-- Правая часть (можно добавить дополнительные элементы) -->
     <div>
       <!-- Здесь можно разместить дополнительные элементы, если потребуется -->

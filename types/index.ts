@@ -13,6 +13,7 @@ export interface Board {
   
   export interface Task {
     id: number;
+    state: number;
     id_board: number;
     id_column: number;
     isOpen: boolean | false;
@@ -35,9 +36,13 @@ export interface Board {
   }
   
   export interface KanbanState {
+    title:string;
     boards: Board[];
     isLoading: boolean;
     error: string | null;
-    selected_border_row: number;
+    selected_board_row: number;
     selected_boardId: string;
+    showTask: boolean;
+    selected_task:Task;
+    new_task: boolean;
   }

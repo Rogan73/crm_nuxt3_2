@@ -20,9 +20,9 @@ yarn install
 bun install
 ```
 
-## Development Server
+## Start page
 
-Start the development server on `http://localhost:3026`:
+Start page `http://localhost:3000`:
 
 ```bash
 # npm
@@ -72,4 +72,4 @@ yarn preview
 bun run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+

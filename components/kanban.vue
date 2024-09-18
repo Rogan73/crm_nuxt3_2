@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { useKanbanStore } from '@/stores/kanban' 
-import { onMounted, onBeforeUnmount, ref } from 'vue' 
+import {  ref,onMounted } from 'vue' 
 import type { Task } from '@/types'
-import InitWebSocket from '@/utils/WebSocket'
-import PlusIcon  from "@/components/icons/PlusIcon.vue"
-import TrashIcon from "@/components/icons/TrashIcon.vue"
-import EditIcon from "@/components/icons/EditIcon.vue"
+
+import iPlus  from "@/components/icons/iPlus.vue"
+import iTrash from "@/components/icons/iTrash.vue"
+import iEdit from "~/components/icons/iEdit.vue"
+
+import {glass } from '@/utils/ClassList'
+
 
 
 
@@ -14,8 +17,7 @@ const boardId = ref('1')  // ID доски из маршрута
 const kanbanStore = useKanbanStore() 
 
 
-let socket: WebSocket | null = null;
-const messages = ref<string[]>([]);
+
 
 
 
@@ -38,12 +40,9 @@ const onDrop = (event: DragEvent, toColumnId: number): void => {
 };
 
 
-
 const newBoardName = ref('') 
 
-
 const addNewBoard = () => {
-
 } 
 
 const removeBoard = (boardId: number) => {
@@ -52,39 +51,13 @@ const removeBoard = (boardId: number) => {
 
 
 const BoardColumns = computed(() => {
-  return kanbanStore.state.boards[kanbanStore.state.selected_border_row]?.columns ?? []
+  return kanbanStore.state.boards[kanbanStore.state.selected_board_row]?.columns ?? []
 })
 
 
 onMounted(() => {
-
-  kanbanStore.getBoard() 
-
-  if (!boardId.value) {
-    console.error('Board ID is not set, cannot connect to WebSocket')
-    return
-  }
-
-
-  const webSocketInstance = InitWebSocket();
-  messages.value = webSocketInstance.messages.value;
-  socket = webSocketInstance.socket;
-
-  console.log('WebSocket initialized in onMounted');
-
-
-}) 
-
-onBeforeUnmount(() => {
-
-  if (socket) {
-    socket.close();
-    console.log('WebSocket connection closed');
-  }
-
-
+kanbanStore.getBoard() 
 })
-
 
 </script>
 
@@ -117,12 +90,13 @@ onBeforeUnmount(() => {
     </div>
 
 
-     <!-- основная панель -->
+     <!-- основная панель 
+     bg-white/60 backdrop-blur-sm dark:bg-slate-800/70 dark:border dark:border-slate-700/50 
+     -->
     <div class="w-[78vw] px-6 ">
       <div class="flex w-full justify-between gap-2" >
         <div v-for="(column, i) in BoardColumns" :key="i"
-        class=" shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-between rounded-lg bg-white/60 backdrop-blur-sm dark:bg-slate-800/70"
-
+        :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-between rounded-lg' ]"
         @drop="onDrop($event, column.id)"
         @dragenter.prevent
         @dragover.prevent
@@ -132,7 +106,7 @@ onBeforeUnmount(() => {
             >{{ column.name}}</div>
             <div v-if="i==0" @click="kanbanStore.addNewTask(String(column.id))"
             class="rounded-full  p-2 cursor-pointer hover:bg-slate-300 dark:hover:bg-violet-700 dark:hover:text-white">
-              <PlusIcon />
+              <iPlus />
             </div>
          </div>  
        
@@ -153,7 +127,7 @@ onBeforeUnmount(() => {
                       <div v-if="task.isOpen">
                         <div>{{ task.description }}</div>
                         <!-- другие данные -->
-                        <div>lorem ipsum dolor sit amet consectetur adipisicing elit. </div>
+                        <!-- <div>lorem ipsum dolor sit amet consectetur adipisicing elit. </div> -->
                       </div>
                     </Transition>
 
@@ -162,14 +136,14 @@ onBeforeUnmount(() => {
                 
                 <div v-if="task.isOpen"
                 class="flex flex-col justify-between h-full ">
-                    <div  @click.stop="kanbanStore.editTask(String(task.id))"
+                    <div  @click.stop="kanbanStore.editTask(i,index)"
                     class="rounded-full  p-2 cursor-pointer hover:bg-yellow-600 dark:hover:bg-yellow-600 dark:hover:text-white">
-                      <EditIcon size="size-4" />
+                      <iEdit size="size-4" />
                     </div>  
 
                     <div @click.stop="kanbanStore.deleteTask(String(task.id))"
                     class="rounded-full  p-2 cursor-pointer hover:bg-red-700/70 dark:hover:bg-red-700/80 dark:hover:text-white">
-                      <TrashIcon size="size-4" />
+                      <iTrash size="size-4" />
                     </div>    
                 </div>
 
