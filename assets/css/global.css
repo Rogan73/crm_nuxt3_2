@@ -5,6 +5,7 @@ body {
     background-repeat: no-repeat;
     background-attachment: fixed;
     background-size: cover;
+    overflow-x: hidden;
   }
   .dark-mode body {
     background-color: #0d0d0d; /* #091a28;*/
@@ -14,6 +15,7 @@ body {
     background-image: none;
   }
   
+  /*  transitions */
   
   .fade-enter-active,
   .fade-leave-active {
@@ -122,3 +124,37 @@ body {
     z-index: -1;
   
   }
+
+/* Scrollbars */
+
+::-webkit-scrollbar{ width: 12px; /* 1 - вертикальный скроллбар */}  
+::-webkit-scrollbar:horizontal{ height: 12px; /* 1 - горизонтальный скроллбар */}
+
+.dark-mode ::-webkit-scrollbar-button {background: #646264; /* 2 - кнопка */}
+.dark-mode ::-webkit-scrollbar-track {background: #262626;/* 3 - трек */}
+.dark-mode ::-webkit-scrollbar-thumb { background:  #3e3b3e; border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); /* 4 видимая часть трека */ }
+.dark-mode ::-webkit-scrollbar-track-piece {background: #605f5f; /*border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */ /* 5 - ползунок */}    
+
+.light-mode ::-webkit-scrollbar-button {background: #b7b6b7; /* 2 - кнопка */}
+.light-mode ::-webkit-scrollbar-track {background: #262626;/* 3 - трек */}
+.light-mode ::-webkit-scrollbar-thumb { background:  #8c8b8c; border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); /* 4 видимая часть трека */ }
+.light-mode ::-webkit-scrollbar-track-piece {background: #b7b6b7; /*border-radius: 10px; -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */ /* 5 - ползунок */}    
+
+::-webkit-scrollbar-button {
+  height: 0;
+  width: 0;
+  background: transparent; 
+}
+
+::-webkit-scrollbar-button:single-button {
+  display: none;
+}
+
+::-webkit-scrollbar-button:increment,
+::-webkit-scrollbar-button:decrement {
+  display: none;
+}
+
+
+
+  

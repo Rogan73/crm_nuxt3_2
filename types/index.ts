@@ -19,7 +19,7 @@ export interface Board {
     isOpen: boolean | false;
     name: string;
     description: string;
-    id_person: number | null;
+    id_person: number ;
     order_index: number;
     
   }
@@ -47,4 +47,20 @@ export interface Board {
     showTask: boolean;
     selected_task:Task;
     new_task: boolean;
+  }
+
+  export  interface TaskUpdateBody {
+    id: number
+    id_board: number
+    id_column: number
+    state: number
+    name: string
+    description: string
+    id_person: number
+    order_index: number
+  }
+
+  export interface QueryResult {
+    changes: number
+    lastInsertRowid: number
   }

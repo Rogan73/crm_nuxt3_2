@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   
     const body = await readBody(event)
   
-    console.log('==body',body);
+    //console.log('==body',body);
     
 
     try {
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       
       console.log('==res',res);
 
-      return { success: true }
+      return res //{ success: true }
     } catch (error) {
       console.error('Error updating board:', error)
       return createError({ statusCode: 500, statusMessage: 'Error updating board' })

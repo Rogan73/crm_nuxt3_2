@@ -13,12 +13,12 @@ export const useKanbanStore = defineStore("kanban", () => {
    const Task_new =ref<Task>({
     id: 0,
     state:1, // 1 to do  2 in progress 3 done
-    id_board: 0,
-    id_column: 0,
+    id_board: 1,
+    id_column: 1,
     isOpen: false,
     name: '',
     description: '',
-    id_person: null,
+    id_person: 1,
     order_index: 0
    })
 
@@ -145,6 +145,9 @@ const ShowAlert=(text:String)=>{
     const addNewTask = (columnId:String)=>{
       console.log('addNewTask');
       state.value.selected_task={...Task_new.value}
+      state.value.selected_task.id_board=state.value.boards[state.value.selected_board_row].id
+      state.value.selected_task.id_column=Number(columnId) 
+      state.value.selected_task.id_person=1 // для проверки
       state.value.title='New task'
       state.value.new_task=true
       router.push('/task')

@@ -7,7 +7,7 @@
 </div>
 
 
-<main class="flex h-screen w-screen">
+<div class="flex h-screen w-screen">
     <!-- <aside
       class="hidden md:block h-full w-96 bg-charcoal border-r border-white border-opacity-10 text-marengo overflow-y-auto"
     >
@@ -18,11 +18,11 @@
       </div>
     </aside> -->
     <topPanel />
-    <div class="mt-24">
+    <main class="mt-20 overflow-y-auto h-[86vh] shadow-inner ">
         <slot />
-    </div>
+    </main>
 
-</main>
+  </div>
 
 </template>
 

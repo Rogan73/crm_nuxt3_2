@@ -2,6 +2,8 @@
 import { onMounted, onBeforeUnmount, ref,computed } from 'vue' 
 import { useKanbanStore } from '@/stores/kanban' 
 import InitWebSocket from '@/utils/WebSocket'
+import iLight from '@/components/icons/iLight.vue'
+import iDark from '@/components/icons/iDark.vue'
 
 const kanbanStore = useKanbanStore() 
 
@@ -16,10 +18,14 @@ const toggleColorMode = () => {
   colorMode.preference = colorMode.value === 'light' ? 'dark' : 'light'
 }
 
+const title=computed(()=>{
+  //const name=kanbanStore.state.boards.length > 0 ? kanbanStore.state.boards[kanbanStore.state.selected_board_row].name : ''
+ return `${kanbanStore.state.title}`
+})
 
 onMounted(() => {
 
-
+  kanbanStore.getBoard() 
 
 // if (!boardId.value) {
 //   console.error('Board ID is not set, cannot connect to WebSocket')
@@ -37,10 +43,7 @@ console.log('WebSocket initialized in onMounted');
 }) 
 
 
-const title=computed(()=>{
-  //const name=kanbanStore.state.boards.length > 0 ? kanbanStore.state.boards[kanbanStore.state.selected_board_row].name : ''
- return `${kanbanStore.state.title}`
-})
+
 
 onBeforeUnmount(() => {
 
@@ -89,8 +92,10 @@ if (socket) {
     <!-- Правая часть (можно добавить дополнительные элементы) -->
     <div>
       <!-- Здесь можно разместить дополнительные элементы, если потребуется -->
-      <btn-r
-            @click="toggleColorMode">{{ colorMode.preference }}
+      <btn-r    @click="toggleColorMode" class="px-[10px]">
+         <div class="flex items-center justify-between gap-1">
+                <iLight /><div>/</div><iDark  class="pt-1" />
+         </div>
       </btn-r>
 
     </div>

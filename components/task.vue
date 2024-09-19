@@ -3,6 +3,7 @@ import { useKanbanStore } from '@/stores/kanban'
 import iBack from '@/components/icons/iBack.vue'
 import iSave from '@/components/icons/iSave.vue'
 import { Input,glass } from '@/utils/ClassList'
+import textareaAuto from '@/components/textareaAuto.vue'
 
 definePageMeta({
   middleware: ['redirect-on-reload']
@@ -49,7 +50,7 @@ const kanbanStore = useKanbanStore()
 
                         <div class ="flex gap-2 items-start ">
                             <label class="w-24 flex-shrink-0 font-bold" for="">Description</label>
-                            <textarea :class="[Input,'flex-grow text-slate-900']" type="text" v-model="kanbanStore.state.selected_task.description   "/>
+                            <textareaAuto :externalClass ="[Input,'flex-grow text-slate-900']" type="text" v-model="kanbanStore.state.selected_task.description   "/>
                         </div> 
 
 

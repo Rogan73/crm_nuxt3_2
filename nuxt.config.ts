@@ -7,7 +7,8 @@ export default defineNuxtConfig({
     '@': resolve(__dirname, './'),
   },
   css: [
-    '@/assets/css/global.css'
+    '@/assets/css/global.css',
+   
   ],
 
   compatibilityDate: '2024-04-03',

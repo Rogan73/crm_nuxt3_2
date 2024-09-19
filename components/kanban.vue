@@ -56,7 +56,7 @@ const BoardColumns = computed(() => {
 
 
 onMounted(() => {
-kanbanStore.getBoard() 
+//kanbanStore.getBoard() 
 })
 
 </script>
@@ -96,7 +96,7 @@ kanbanStore.getBoard()
     <div class="w-[78vw] px-6 ">
       <div class="flex w-full justify-between gap-2" >
         <div v-for="(column, i) in BoardColumns" :key="i"
-        :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-between rounded-lg' ]"
+        :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-start   rounded-lg' ]"
         @drop="onDrop($event, column.id)"
         @dragenter.prevent
         @dragover.prevent
