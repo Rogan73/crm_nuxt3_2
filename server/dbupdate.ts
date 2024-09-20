@@ -19,6 +19,40 @@ export async function updateBoardInDatabase(id: string, data: any) {
 
   }
 
+export async function deleteFromDatabase( body: DeleteRow) {  
+  const db = useDatabase("DBKanban")
+  try {
+    const query_d = `
+    DELETE FROM ${body.table} where id= ?
+    `
+    const params_d: (string)[]  = [
+      body.id
+    ]
+
+
+    try {
+      const stmt = db.prepare(query_d)
+      const result = stmt.run(...params_d) as any
+
+      const res1 = {updatedIdBoard:body.id_board }
+      broadcastMessage(JSON.stringify(res1))
+      console.log('✅ Message after delete sent to all clients')
+
+      return {success: true }
+
+    } catch (error) {
+      console.error(`🔴 Error deleting row from ${body.table}:`, error)
+      return { success: false, error: (error as Error).message }
+    }    
+
+
+
+  } catch (error) {
+    console.error('🔴 Error deleting row:', error)
+    return { success: false, error: (error as Error).message }
+  }
+
+}
 
 export async function updateTaskInDatabase( body: Task) {
     const db = useDatabase("DBKanban")
@@ -26,6 +60,7 @@ export async function updateTaskInDatabase( body: Task) {
     let res:String
 
      try {
+
 
       if (body.id == 0) {
         // INSERT 

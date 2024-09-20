@@ -25,14 +25,15 @@ export default function InitWebSocket(): WebSocketReturn {
   socket.onmessage = (event: MessageEvent) => {
     const message = event.data as string
 
-    console.log('✅ Received message:', message)
+    console.log('💬 Received message:', message)
     
     messages.value.push(message)
-
+    // message to JSON array
+    let m = JSON.parse(message)
     // обновить board если совпадает id и он открыт на странице
-    //if (kanbanStore.state.selected_boardId==message.id_board) {
+    if (kanbanStore.state.selected_boardId==m.updatedIdBoard) {
       kanbanStore.getBoard()  // учесть ID_BOARD  
-    //}
+    }
     
 
     

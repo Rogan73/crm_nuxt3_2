@@ -45,7 +45,16 @@ type DefaultSQLResult = {
     created_at: Date;
     inprogress_at: Date | null;
     done_at: Date | null;
+    action: string;
   };
+
+
+  type DeleteRow = {
+    table:string;
+    id:string;
+    id_board:string;
+    action:string;
+  }
   
   type Column = {
     id: number;

@@ -1,17 +1,22 @@
-import { updateTaskInDatabase } from '../dbupdate'
+import { updateTaskInDatabase, deleteFromDatabase } from '../dbupdate'
 
 export default defineEventHandler(async (event) => {
  
   
-    const body = await readBody(event)
+    const body  = await readBody(event)
   
     //console.log('==body',body);
     
+    let res
 
     try {
-      let res=await updateTaskInDatabase( body)
+      if (body.action=='delete'){
+      res=await deleteFromDatabase( body)
+      }else{
+      res=await updateTaskInDatabase( body)
+      }
       
-      console.log('==res',res);
+      console.log('🔹 res '+body.action,res);
 
       return res //{ success: true }
     } catch (error) {

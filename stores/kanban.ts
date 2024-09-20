@@ -46,23 +46,25 @@ export const useKanbanStore = defineStore("kanban", () => {
           })
           
         } catch (error) {
-          console.error(`==Error updating board: ${state.value.selected_boardId}`, error)
+          console.error(`🔴 Error updating board: ${state.value.selected_boardId}`, error)
         }
       }
 
 
 
     const getBoard = async (): Promise<void> => {
+        console.log('getBoard')
+        
         state.value.isLoading = true
         state.value.error = null
         try {
           const response = await $fetch<Board[]>(`/api/board/${state.value.selected_boardId}`)
-          console.log('==response',response);
+          console.log('🔹 res',response);
           
           state.value.boards = response
           state.value.title=state.value.boards[state.value.selected_board_row].name
         } catch (e) {
-          console.error("==Error fetching boards:", e)
+          console.error("🔴 Error fetching boards:", e)
           state.value.error = e instanceof Error ? e.message : String(e)
         } finally {
           state.value.isLoading = false
@@ -85,13 +87,13 @@ export const useKanbanStore = defineStore("kanban", () => {
 
   // Проверка, что оба столбца найдены
   if (fromColumnIndex === -1 || toColumnIndex === -1) {
-    console.error('==Column not found');
+    console.error('🔴 Column not found');
     return;
   }
 
   // Проверяем, что в fromColumn есть задачи
   if (!board.columns[fromColumnIndex].tasks || !board.columns[fromColumnIndex].tasks.length) {
-    console.error('==No tasks in the fromColumn');
+    console.error('🔴 No tasks in the fromColumn');
     return;
   }
 
@@ -99,7 +101,7 @@ export const useKanbanStore = defineStore("kanban", () => {
 
   // Проверка, что задача найдена
   if (fromTaskIndex === -1) {
-    console.error('==Task not found');
+    console.error('🔴 Task not found');
     return;
   }
 
@@ -154,6 +156,37 @@ const ShowAlert=(text:String)=>{
       
     }
 
+
+    const deleteFormDB=async(endpoint:String,table:String,id:String)=>{
+
+      console.log('deleteTask from DB ');
+
+      const  body=JSON.stringify({
+        table,
+        id,
+        id_board: state.value.selected_boardId,
+        action: 'delete'
+      })
+
+      try {
+        
+        let res = await $fetch(`/api/${endpoint}`, {
+          method: 'POST',
+          body,
+        })
+
+        console.log('🔹 res',res);
+        
+        // редактировать локально или перегрузить
+        //getBoard()  по WinSocket
+
+        
+      } catch (error) {
+        console.error(`🔴Error updating board: ${state.value.selected_boardId}`, error)
+      }  
+    }
+
+
     const deleteTask=(taskId:String)=>{
       console.log('deleteTask');
       
@@ -161,7 +194,8 @@ const ShowAlert=(text:String)=>{
         'delete','Warning','Are you sure you want to delete this task?',
         () => { 
           //onConfirm
-          console.log('deleteTask from DB '+taskId);
+          
+          deleteFormDB('task','tasks',taskId)
         },
         () => {  
           //  onCancel
@@ -187,29 +221,24 @@ const ShowAlert=(text:String)=>{
   }
 
 
-    const sendUpdateTask = async (updatedData: any) => {
-
-    }
-
-
-    const saveTask =async()=>{
+     const saveTask =async()=>{
       console.log('saveTask to DB');
 
       try {
         
         let res = await $fetch('/api/task', {
           method: 'POST',
-          body: JSON.stringify(state.value.selected_task) ,
+          body: JSON.stringify({...state.value.selected_task,action:'update'}) ,
         })
 
-       console.log('==res',res);
+       console.log('🔹res',res);
        
 
         state.value.title=state.value.boards[state.value.selected_board_row].name //'Board'
         router.push('/')        
         
       } catch (error) {
-        console.error(`==Error updating board: ${state.value.selected_boardId}`, error)
+        console.error(`🔴Error updating board: ${state.value.selected_boardId}`, error)
       }        
 
     }
