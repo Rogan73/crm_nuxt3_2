@@ -17,7 +17,6 @@
     "pinia": "^2.2.2",
     "vue": "latest",
     "vue-router": "latest",
-    "vuedraggable": "^4.1.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
