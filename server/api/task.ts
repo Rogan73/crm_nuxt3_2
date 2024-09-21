@@ -1,4 +1,4 @@
-import { updateTaskInDatabase, deleteFromDatabase } from '../dbupdate'
+import { updateTaskInDatabase, deleteFromDatabase, moveTaskInDatabase } from '../dbupdate'
 
 export default defineEventHandler(async (event) => {
  
@@ -12,10 +12,16 @@ export default defineEventHandler(async (event) => {
     try {
       if (body.action=='delete'){
       res=await deleteFromDatabase( body)
-      }else{
+      }
+      if (body.action=='update'){
       res=await updateTaskInDatabase( body)
       }
+      if (body.action=='move'){
+        res=await moveTaskInDatabase( body)
+       }
+  
       
+
       console.log('🔹 res '+body.action,res);
 
       return res //{ success: true }

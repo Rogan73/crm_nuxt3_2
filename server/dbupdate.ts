@@ -3,6 +3,30 @@ import { broadcastMessage } from '@/server/plugins/initWebSocket.plugin';
 import type {Task} from '@/types'
 
 
+const ExecuteQuery=(query:string,params:(string | number)[],id_board:string)=>{
+
+  console.log('ExecuteQuery id_board',id_board)
+
+  const db = useDatabase("DBKanban")
+
+  try {
+    const stmt = db.prepare(query)
+    const result = stmt.run(...params) as any
+
+    const res1 = {updatedIdBoard:id_board }
+    broadcastMessage(JSON.stringify(res1))
+    console.log('✅ Message after ExecuteQuery sent to all clients')
+
+    return {success: true }
+
+  } catch (error) {
+    console.error(`🔴 Error ExecuteQuery: `, error)
+    return { success: false, error: (error as Error).message }
+  }    
+
+
+}
+
 export async function updateBoardInDatabase(id: string, data: any) {
     try {
     // Update data to DB
@@ -20,64 +44,55 @@ export async function updateBoardInDatabase(id: string, data: any) {
   }
 
 export async function deleteFromDatabase( body: DeleteRow) {  
+  console.log('deleteFromDatabase')
   const db = useDatabase("DBKanban")
-  try {
+
     const query_d = `
     DELETE FROM ${body.table} where id= ?
     `
     const params_d: (string)[]  = [
       body.id
     ]
-
-
-    try {
-      const stmt = db.prepare(query_d)
-      const result = stmt.run(...params_d) as any
-
-      const res1 = {updatedIdBoard:body.id_board }
-      broadcastMessage(JSON.stringify(res1))
-      console.log('✅ Message after delete sent to all clients')
-
-      return {success: true }
-
-    } catch (error) {
-      console.error(`🔴 Error deleting row from ${body.table}:`, error)
-      return { success: false, error: (error as Error).message }
-    }    
-
-
-
-  } catch (error) {
-    console.error('🔴 Error deleting row:', error)
-    return { success: false, error: (error as Error).message }
-  }
+    return ExecuteQuery(query_d,params_d,body.id_board)
 
 }
 
-export async function updateTaskInDatabase( body: Task) {
-    const db = useDatabase("DBKanban")
 
+
+
+export async function moveTaskInDatabase( body: Task) {
+  
+  console.log('moveTaskInDatabase')
+
+  const query = `
+      UPDATE tasks
+      SET 
+          id_column = ?,
+          order_index = ?
+      WHERE id = ?
+    `
+    const params: (string | number)[] = [
+      body.id_column,
+      body.order_index,
+      body.id
+    ]
+      
+    return ExecuteQuery(query,params,String(body.id_board))
+}
+
+export async function updateTaskInDatabase( body: Task) {
     let res:String
 
      try {
 
 
       if (body.id == 0) {
-        // INSERT 
-        
+       
         console.log('--insert')
-
-        // const result = await db.sql`
-        //   INSERT INTO tasks (id_board, id_column, status, name, description, id_person, order_index)
-        //   VALUES (${body.id_board}, ${body.id_column}, ${body.state}, '${body.name}', '${body.description}', ${body.id_person}, ${body.order_index})
-        // `
-
-
         const query_i = `
         INSERT INTO tasks (id_board, id_column, state, name, description, id_person, order_index)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `
-     
 
       const params_i: (string | number)[]  = [
         body.id_board,
@@ -89,26 +104,9 @@ export async function updateTaskInDatabase( body: Task) {
         body.order_index
       ]
 
-    console.log('params_i',params_i)
+    //console.log('params_i',params_i)
       
-    
-      try {
-        const stmt = db.prepare(query_i)
-        const result = stmt.run(...params_i) as any
-
-        const res1 = {updatedIdBoard:body.id_board }
-        broadcastMessage(JSON.stringify(res1))
-        console.log('✅ Message after insert sent to all clients')
-
-        return {success: true, id: result.lastInsertRowid, changes: result.changes    }
-
-      } catch (error) {
-        console.error('🔴 Error inserting task:', error)
-        return { success: false, error: (error as Error).message }
-      }
-
-        //console.log('result after insert',result)
-        //SELECT last_insert_rowid() AS mainboard_id;
+    return ExecuteQuery(query_i,params_i,String(body.id_board))
         
 
       } else if (body.id > 0) {
@@ -136,34 +134,16 @@ export async function updateTaskInDatabase( body: Task) {
         body.id
       ]
 
-      try {
-        const stmt = db.prepare(query)
-        const result = stmt.run(...params) as any
-
-
-        const res2 = {updatedIdBoard:body.id_board }
-        broadcastMessage(JSON.stringify(res2))
-        console.log('✅ Message after update sent to all clients')
-
-        return { success:true, message: 'Task updated successfully',id_board: body.id_board, id: body.id }
-
-      } catch (error) {
-        console.error('🔴 Error updating task:', error)
-        return { success: false, error: (error as Error).message }
-      }
-        
-      //console.log('result after update',result)
+      return ExecuteQuery(query,params,String(body.id_board))
      
       } else {
         throw new Error('Invalid id')
       }
 
     } catch (error) {
-      console.error('🔴 Database error:', error)
+      console.error('🔴 Params error:', error)
       return { catch_error: error }
     }
-     
-
 
      
   } 

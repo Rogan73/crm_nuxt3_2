@@ -73,7 +73,7 @@ export const useKanbanStore = defineStore("kanban", () => {
 
 
 
-    const moveTask=(fromTaskID:String, fromColumnId:String, toColumnId:String): void => {
+    const moveTask= async(fromTaskID:String, fromColumnId:String, toColumnId:String): Promise<void> => {
       //console.log(fromTaskID, fromColumnId, toColumnId);
       const board_index=state.value.selected_board_row
       const board=state.value.boards[board_index]
@@ -107,9 +107,51 @@ export const useKanbanStore = defineStore("kanban", () => {
 
   const task = board.columns[fromColumnIndex].tasks[fromTaskIndex];
   board.columns[fromColumnIndex].tasks.splice(fromTaskIndex, 1);
-  board.columns[toColumnIndex].tasks.push(task);     
+  board.columns[toColumnIndex].tasks.push(task);   
+  
+  
+  // сохранить в базу и если ошибка-то вернуть обратно
+  
+  const  body=JSON.stringify({
+    id_board: state.value.selected_boardId,
+    id_column: toColumnId,
+    order_index: 0, // проверка
+    id:fromTaskID,
+    action: 'move'
+  })
+
+  try {
+        
+    let res = await $fetch(`/api/task`, {
+      method: 'POST',
+      body,
+    })
+
+    console.log('🔹 res',res);
+
+    
+      if (res && 'success' in res && res.success == false){ // вернуть обратно
+      const fromTaskIndex2=board.columns[toColumnIndex].tasks.findIndex((task: any) => String(task.id) == fromTaskID)
+      board.columns[toColumnIndex].tasks.splice(fromTaskIndex2, 1);
+      board.columns[fromColumnIndex].tasks.push(task); 
+
+      //const fromColumnIndex2=board.columns.findIndex((column: Column) => String(column.id) == fromColumnId)
+      //board.columns[fromColumnIndex2].tasks.push(task);
+
+      //const fromColumnIndex2=board.columns.findIndex((column: Column) => String(column.id) == fromColumnId) 
+      //board.columns[toColumnIndex].tasks.splice(fromTaskIndex2, 1);
+      //board.columns[fromColumnIndex].tasks.push(task); 
+      }
+  
+    
+    
+  } catch (error) {
+    console.error(`🔴Error move task: ${state.value.selected_boardId}`, error)
+  }  
+
+
    
-    }
+}
   
 
     const addBoard = (board: Board): void => {
