@@ -73,12 +73,29 @@ export const useKanbanStore = defineStore("kanban", () => {
 
 
 
-    const moveTask= async(fromTaskID:String, fromColumnId:String, toColumnId:String): Promise<void> => {
+
+    const reorderTask=(columnId: string, fromIndex: number, toIndex: number) => {
+      const column = state.value.boards[state.value.selected_board_row].columns.find(col => col.id === parseInt(columnId));
+      if (column) {
+        const [movedTask] = column.tasks.splice(fromIndex, 1);
+        column.tasks.splice(toIndex, 0, movedTask);
+        // Обновите order_index для всех задач в колонке
+        column.tasks.forEach((task, index) => {
+          task.order_index = index;
+        });
+      }
+    }
+
+
+
+    const moveTask= async(fromTaskID:String, fromColumnId:String, toColumnId:String,toTaskIndex:number): Promise<void> => {
       //console.log(fromTaskID, fromColumnId, toColumnId);
       const board_index=state.value.selected_board_row
       const board=state.value.boards[board_index]
       const fromColumnIndex=board.columns.findIndex((column: Column) => String(column.id) == fromColumnId) 
       const toColumnIndex=board.columns.findIndex((column: Column) => String(column.id) == toColumnId) 
+      
+
       
       // const fromTaskIndex= board.columns[fromColumnIndex].tasks.length ?  board.columns[fromColumnIndex].tasks.findIndex((task: any) => task.id === fromTaskID)  : 0
       // const task=board.columns[fromColumnIndex].tasks[fromTaskIndex] 
@@ -110,6 +127,9 @@ export const useKanbanStore = defineStore("kanban", () => {
   board.columns[toColumnIndex].tasks.push(task);   
   
   
+  //board.columns[toColumnIndex].tasks.splice(toTaskIndex, 0, taskToMove);
+
+
   // сохранить в базу и если ошибка-то вернуть обратно
   
   const  body=JSON.stringify({
@@ -293,6 +313,7 @@ const ShowAlert=(text:String)=>{
         editBoardName,
         getBoard,
         moveTask,
+        reorderTask,
         addNewTask,
         deleteTask,
         editTask,

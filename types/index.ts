@@ -64,3 +64,8 @@ export interface Board {
     changes: number
     lastInsertRowid: number
   }
+
+  export interface toDrop {
+    columnIndex: number | null;
+    taskIndex: number | null;
+  }

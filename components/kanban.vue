@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useKanbanStore } from '@/stores/kanban' 
 import {  ref,onMounted } from 'vue' 
-import type { Task } from '@/types'
+import type { Task,toDrop } from '@/types'
 
 import iPlus  from "@/components/icons/iPlus.vue"
 import iTrash from "@/components/icons/iTrash.vue"
@@ -16,27 +16,75 @@ const boardId = ref('1')  // ID доски из маршрута
 
 const kanbanStore = useKanbanStore() 
 
+const toDrop= ref<toDrop>({
+  columnIndex:  null,
+  taskIndex:  null
+})
 
-
+const fromDrop= ref<toDrop>({
+  columnIndex:  null,
+  taskIndex:  null
+})
 
 
 
 const startDrag = (
   event: DragEvent,
   item: Task,
-  fromColumnId: number
+  fromColumnId: number,
+  fromColumnIndex:number,
+  fromTaskIndex:number
 ): void => {
   event.dataTransfer!.dropEffect = "move";
   event.dataTransfer!.effectAllowed = "move";
   event.dataTransfer!.setData("fromTaskID", String(item.id) );
   event.dataTransfer!.setData("fromColumnId", String(fromColumnId));
+  event.dataTransfer!.setData("fromTaskOrderIndex", String(item.order_index));
+
+  fromDrop.value={
+    columnIndex: fromColumnIndex,
+    taskIndex: fromTaskIndex,
+  }
+
+
+
 };
 
 
-const onDrop = (event: DragEvent, toColumnId: number): void => {
+const handleDragOver = (event: DragEvent,columnIndex:number,taskIndex:number ) => {
+  console.log('Drag over event:', event)
+
+  toDrop.value={
+    columnIndex,
+    taskIndex,
+  }
+
+}
+
+const onDrop = (event: DragEvent, toColumnId: number, toTaskIndex: number): void => {
   const fromTaskID = event.dataTransfer!.getData("fromTaskID");
   const fromColumnId = event.dataTransfer!.getData("fromColumnId");
-  kanbanStore.moveTask(fromTaskID, fromColumnId, String(toColumnId) )
+  const fromTaskOrderIndex = parseInt(event.dataTransfer!.getData("fromTaskOrderIndex"));
+
+
+
+  if (fromColumnId === String(toColumnId)) {
+    // Перемещение внутри колонки
+    kanbanStore.reorderTask(fromColumnId, fromTaskOrderIndex, toTaskIndex);
+  } else {
+    // Перемещение между колонками
+    kanbanStore.moveTask(fromTaskID, fromColumnId, String(toColumnId), toTaskIndex);
+  }
+
+
+  toDrop.value={
+    columnIndex:null,
+    taskIndex:null
+  }
+
+
+
+  //kanbanStore.moveTask(fromTaskID, fromColumnId, String(toColumnId) )
 };
 
 
@@ -89,7 +137,7 @@ onMounted(() => {
       </div>
     </div>
 
-
+    <div> columnIndex: {{ toDrop.columnIndex }} taskIndex: {{toDrop.taskIndex}}</div>
      <!-- основная панель 
      bg-white/60 backdrop-blur-sm dark:bg-slate-800/70 dark:border dark:border-slate-700/50 
      -->
@@ -97,13 +145,13 @@ onMounted(() => {
       <div class="flex w-full justify-between gap-2" >
         <div v-for="(column, i) in BoardColumns" :key="i"
         :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-start   rounded-lg' ]"
-        @drop="onDrop($event, column.id)"
+        @drop="onDrop($event, column.id,0)"
         @dragenter.prevent
         @dragover.prevent
         >
          <div class="flex justify-between w-full">
             <div class="text-2xl font-bold    dark:text-violet-400  rounded-lg p-2 pt-0"
-            >{{ column.name}}</div>
+            >{{ column.name}} </div>
             <div v-if="i==0" @click="kanbanStore.addNewTask(String(column.id))"
             class="rounded-full  p-2 cursor-pointer hover:bg-slate-300 dark:hover:bg-violet-700 dark:hover:text-white">
               <iPlus />
@@ -112,13 +160,35 @@ onMounted(() => {
        
         <div  class="flex flex-col gap-2">
         <TransitionGroup tag="div" name="tasks" class="flex flex-col gap-2">
+ 
+             
+                
+          <template v-for="(task, index) in column.tasks" :key="task.id"> 
+
+
+            <!-- ячейка для сброса -->
+            <template v-if="i==toDrop.columnIndex && index==toDrop.taskIndex && fromDrop.taskIndex!=index && fromDrop.columnIndex!=i">
+              <div  class="rounded-lg h-10 w-full flex justify-center items-center  border border-violet-700  bg-violet-400 text-slate-200 dark:border-gray-700 dark:bg-gray-600 dark:text-slate-400"
+              @drop="onDrop($event, column.id, index)"
+              @dragenter.prevent
+            
+              >
+                    <iPlus/>
+
+              </div>  
+            </template>
+          
               <div
                 class=" px-3 py-2 flex  justify-between  rounded-lg text-slate-700  bg-gray-300  hover:bg-gray-400 hover:text-white hover:dark:text-violet-100 hover:dark:bg-violet-700/50 cursor-pointer  dark:text-white dark:bg-slate-700"
-                v-for="(task, index) in column.tasks"
-                :key="task.id"
+                
+                
                 draggable="true"
-                @dragstart="startDrag($event, task, column.id)"
+                @dragstart="startDrag($event, task, column.id,i,index)"
                 @click="task.isOpen=!task.isOpen"
+                @dragover.prevent="handleDragOver($event,i,index)"
+                
+                :data-task-id="task.id"
+                :data-task-index="index"
               >
                 <div class="flex flex-col" >
                        
@@ -148,6 +218,9 @@ onMounted(() => {
                 </div>
 
               </div>
+
+            </template> 
+
         </TransitionGroup>
         </div>
 

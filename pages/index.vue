@@ -1,6 +1,6 @@
 <template>
    <transition name="fade">
-     <kanban />
+     <kanban2 />
    </transition>
 
    <transition name="fade">

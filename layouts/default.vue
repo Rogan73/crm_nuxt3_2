@@ -17,9 +17,18 @@
 
       </div>
     </aside> -->
-    <topPanel />
+
+
+    
+    <!-- <topPanel /> -->
+
+
     <main class="mt-20 overflow-y-auto h-[86vh] shadow-inner ">
-        <slot />
+        <!-- <slot /> -->
+    
+         <!-- <Kanban2/> -->
+        
+
     </main>
 
   </div>
