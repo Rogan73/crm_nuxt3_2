@@ -20,14 +20,11 @@
 
 
     
-    <!-- <topPanel /> -->
+    <topPanel /> 
 
 
     <main class="mt-20 overflow-y-auto h-[86vh] shadow-inner ">
-        <!-- <slot /> -->
-    
-         <!-- <Kanban2/> -->
-        
+        <slot />
 
     </main>
 

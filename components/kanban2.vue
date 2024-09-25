@@ -1,147 +1,35 @@
 <script setup lang="ts">
 import draggable from "vuedraggable"
-                       
-import TaskCard from "@/components/taskCard2.vue";
+import {glass } from '@/utils/ClassList'                       
+import TaskCard from "@/components/taskCard2.vue"
+import { useKanban2Store } from '@/stores/kanban2'
 
-   const   columns= ref([
-        {
-          title: "Backlog",
-          tasks: [
-            {
-              id: 1,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            },
-            {
-              id: 2,
-              title: "Provide documentation on integrations",
-              date: "Sep 12"
-            },
-            {
-              id: 3,
-              title: "Design shopping cart dropdown",
-              date: "Sep 9",
-              type: "Design"
-            },
-            {
-              id: 4,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            },
-            {
-              id: 5,
-              title: "Test checkout flow",
-              date: "Sep 15",
-              type: "QA"
-            }
-          ]
-        },
-        {
-          title: "In Progress",
-          tasks: [
-            {
-              id: 6,
-              title: "Design shopping cart dropdown",
-              date: "Sep 9",
-              type: "Design"
-            },
-            {
-              id: 7,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            },
-            {
-              id: 8,
-              title: "Provide documentation on integrations",
-              date: "Sep 12",
-              type: "Backend"
-            }
-          ]
-        },
-        {
-          title: "Review",
-          tasks: [
-            {
-              id: 9,
-              title: "Provide documentation on integrations",
-              date: "Sep 12"
-            },
-            {
-              id: 10,
-              title: "Design shopping cart dropdown",
-              date: "Sep 9",
-              type: "Design"
-            },
-            {
-              id: 11,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            },
-            {
-              id: 12,
-              title: "Design shopping cart dropdown",
-              date: "Sep 9",
-              type: "Design"
-            },
-            {
-              id: 13,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            }
-          ]
-        },
-        {
-          title: "Done",
-          tasks: [
-            {
-              id: 14,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            },
-            {
-              id: 15,
-              title: "Design shopping cart dropdown",
-              date: "Sep 9",
-              type: "Design"
-            },
-            {
-              id: 16,
-              title: "Add discount code to checkout page",
-              date: "Sep 14",
-              type: "Feature Request"
-            }
-          ]
-        }
-      ]
-
-    )
-
+const kanban2Store = useKanban2Store()   
 
 </script>
 
 <template>
 
-<ClientOnly>
-    <div id="app">
-    <div class="flex justify-center">
-      <div class="min-h-screen flex overflow-x-scroll py-12">
+
+    
+    <div class="flex justify-center px-6">
+      <div class="flex w-full justify-between gap-4">
+        <!-- class="bg-gray-100 rounded-lg px-3 py-3 column-width mr-4" -->
         <div
-          v-for="column in columns"
-          :key="column.title"
-          class="bg-gray-100 rounded-lg px-3 py-3 column-width mr-4"
+          v-for="(column, index) in kanban2Store.columns"
+          :key="index"
+          
+          :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-start   rounded-lg     ' ]"
         >
-          <p class="text-gray-700 font-semibold font-sans tracking-wide text-sm">{{ column.title }}</p>
-          <draggable :list="column.tasks" :animation="200" ghost-class="ghost-card" group="tasks">
-            <template #item="{ element }"> 
+          <p class="text-2xl font-bold    dark:text-violet-400  rounded-lg p-2 pt-0">{{ column.title }}</p>
+          <draggable :list="column.tasks" :itemKey="column.title"  :animation="200" ghost-class="ghost-card" group="tasks">
+            <template #item="{ element }" > 
               <task-card
+                
                 :key="element.id"
                 :task="element"
+                :columnIndex="index"
+                :taskIndex="0"
                 class="mt-3 cursor-move"
               />
             </template>
@@ -149,8 +37,8 @@ import TaskCard from "@/components/taskCard2.vue";
         </div>
       </div>
     </div>
-  </div>
-</ClientOnly>
+
+
 </template>
 
 <style scoped>
