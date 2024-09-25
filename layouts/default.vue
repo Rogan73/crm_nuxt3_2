@@ -1,10 +1,10 @@
 <template>
 
-<div class="glow-container">
+<!-- <div class="glow-container">
   <div class="ball"></div>
   <div class="ball" style="--delay:-12s;--size:0.35;--speed:25s;"></div>
   <div class="ball" style="--delay:-10s;--size:0.3;--speed:15s;"></div>
-</div>
+</div> -->
 
 
 <div class="flex h-screen w-screen">
@@ -21,11 +21,8 @@
 
     
     <topPanel /> 
-
-
-    <main class="mt-20 overflow-y-auto h-[86vh] shadow-inner ">
+    <main class="mt-20 overflow-y-auto h-[84vh] shadow-inner ">
         <slot />
-
     </main>
 
   </div>

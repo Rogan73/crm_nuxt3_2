@@ -1,6 +1,9 @@
 import { defineStore } from "pinia"
 import { ref } from "vue"
-import type { Board, Kanban2State,Column,Task } from '@/types/kanban2types'
+import type {Task,SelectedTaskRow } from '@/types/kanban2types'
+import { useConfirmStore } from '@/stores/storeConfirm'
+import { useRouter } from 'vue-router'
+
 
 export const useKanban2Store = defineStore("kanban2", () => {
 
@@ -21,6 +24,7 @@ export const useKanban2Store = defineStore("kanban2", () => {
               id: 2,
               title: "Provide documentation on integrations",
               date: "Sep 12"
+              
             },
             {
               id: 3,
@@ -126,32 +130,127 @@ export const useKanban2Store = defineStore("kanban2", () => {
 
     )
 
+    const router = useRouter()
 
-    const state = ref<Kanban2State>({
-         title: '',
-            boards: [],
-            isLoading: false,
-            error: null,
-            selected_board_row: 0,
-            selected_boardId: '1',
-            showTask: false,
-            selected_task: {
-                id: 0,
-                state:1, // 1 to do  2 in progress 3 done
-                id_board: 1,
-                id_column: 1,
-                isOpen: false,
-                name: '',
-                description: '',
-                id_person: 1,
-                order_index: 0
-            },
-            new_task:false
+    const SelectedTaskRow=ref<SelectedTaskRow>({columnRow:-1,taskRow:-1})
+    const selectedTask=ref<Task>({} as Task)
+    const titlePage=ref<String>('')
+    const operation=ref<String>('')
+
+// Alert
+
+const { showConfirm } = useConfirmStore()
+const ShowAlert=(text:String)=>{
+
+  showConfirm(
+    'alert','Warning.',text,
+    () => { // onConfirm
+    },
+    () => {  //  onCancel
+    }
+  )
+}
+
+// Task
+
+const addTask = (columnId:number)=>{
+  // console.log('addNewTask');
+  // state.value.selected_task={...Task_new.value}
+  // state.value.selected_task.id_board=state.value.boards[state.value.selected_board_row].id
+  // state.value.selected_task.id_column=Number(columnId) 
+  // state.value.selected_task.id_person=1 // для проверки
+  // state.value.title='New task'
+  // state.value.new_task=true
+  // router.push('/task')
+  
+}
+
+
+    const editTask=(task:Task)=>{
+      console.log(task.id)
+
+      selectedTask.value={...task}
+      titlePage.value='Edit task'
+      operation.value='EditTask'
+      router.push('/task')
+
+
+    }
+
+
+
+    const deleteFormDB=async(endpoint:String,table:String,id:String)=>{
+
+      console.log('delete id from DB '+table);
+
+      const  body=JSON.stringify({
+        table,
+        id,
+        action: 'delete'
+      })
+
+      try {
+        
+        let res = await $fetch(`/api/${endpoint}`, {
+          method: 'POST',
+          body,
         })
+        
+        // редактировать локально или перегрузить или дождаться команды от WinSocket о перегрузке
+       
+
+      } catch (error) {
+        console.error(`🔴Error deleting ${id}`, error)
+      }  
+    }
+
+
+    const deleteTask=(task:Task)=>{
+
+      console.log('deleteTask',task.id);
+      
+      showConfirm(
+        'delete','Warning','Are you sure you want to delete this task?',
+        async() => { 
+          //onConfirm
+          
+        //  await  deleteFormDB('task','tasks',String(task.id))
+          
+          columns.value[SelectedTaskRow.value.columnRow].tasks.splice(SelectedTaskRow.value.taskRow,1)
+
+        },
+        () => {  
+          //  onCancel
+          console.log('Deletion canceled')
+        }
+      )
+
+    }    
+
+    const saveTask=()=>{
+      console.log('saveTask');
+    }
    
 
+    const cancelTask=()=>{
+      console.log('cancelTask');
+      router.push('/')
+    }
+
     return{
-        state,
-        columns
+      
+        columns,
+        SelectedTaskRow,
+        selectedTask,
+        titlePage,
+        operation,
+        addTask,
+        editTask,
+        deleteTask,
+        saveTask,
+        cancelTask,
+        ShowAlert,
+
+
     }
 })

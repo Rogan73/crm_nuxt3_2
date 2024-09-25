@@ -4,6 +4,7 @@ import {glass } from '@/utils/ClassList'
 import TaskCard from "@/components/taskCard2.vue"
 import { useKanban2Store } from '@/stores/kanban2'
 
+
 const kanban2Store = useKanban2Store()   
 
 </script>

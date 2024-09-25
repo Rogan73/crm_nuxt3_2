@@ -2,24 +2,11 @@
 import {computed} from 'vue'
 import badge from "@/components/badge2.vue";
 import { useKanban2Store } from '@/stores/kanban2'
+import iTrash from "@/components/icons/iTrash.vue"
+import iEdit from "~/components/icons/iEdit.vue"
+import type {  Task } from '@/types/kanban2types'
 
 const kanban2Store = useKanban2Store()   
-
-interface Task {
-  id: number;
-  type?: string;
-  title: string;
-  date: string;
-  description?: string;
-  isOpen?: boolean;
-
-}
-
-interface SelectedTaskRow {
-  columnRow: number;
-  taskRow: number;
-}
-
 
 
   const props = defineProps<{
@@ -27,7 +14,7 @@ interface SelectedTaskRow {
     columnIndex: number;
   }>()
 
-  const selected_task_row = ref<SelectedTaskRow>({columnRow:-1,taskRow:-1}) 
+
   const selected_task_id = ref<number>(-1)
 
   const badgeColor= computed(()=>{
@@ -50,10 +37,8 @@ const selectTask = ()=>{
   const taskIndex=kanban2Store.columns[props.columnIndex].tasks.findIndex(task => task.id === props.task.id)
   kanban2Store.columns[props.columnIndex].tasks[taskIndex].isOpen = !kanban2Store.columns[props.columnIndex].tasks[taskIndex].isOpen
 
-  selected_task_row.value = {
-    columnRow: props.columnIndex,
-    taskRow: 0
-  }
+  kanban2Store.SelectedTaskRow={columnRow:props.columnIndex,taskRow:taskIndex}
+
   //console.log(selected_task_id.value);
   
 }
@@ -62,7 +47,9 @@ const selectTask = ()=>{
 
 <template>
     <div @click="selectTask"
-    class="px-3 pt-3 pb-5  flex flex-col  justify-between  rounded-lg text-slate-700  bg-gray-300  hover:bg-gray-400 hover:text-white hover:dark:text-violet-100 hover:dark:bg-violet-700/50 cursor-pointer  dark:text-white dark:bg-slate-700">
+    class="px-3 pt-3 pb-5  flex flex-col  justify-between  rounded-lg text-slate-700   hover:bg-gray-200 hover:text-black hover:dark:text-violet-100 hover:dark:bg-violet-700/50 cursor-pointer  dark:text-white "
+    :class=" props.task.isOpen ? 'bg-gray-200 dark:bg-violet-700/50' : 'bg-gray-300 dark:bg-slate-700'"
+    >
       
       <div class="flex justify-between items-start">
         <p class="">{{task.title}}</p>
@@ -78,8 +65,13 @@ const selectTask = ()=>{
 
       <!-- скрываемый контент -->
       <div v-if="props.task.isOpen"
-      class="flex italic ">
+      class="flex  flex-col gap-2">
+        <div class="italic ">
         {{task.description}}
+        </div>
+        <div>
+          {{task.person?.name}}
+        </div>
 
       </div>
 
@@ -88,6 +80,24 @@ const selectTask = ()=>{
         <span class="text-sm text-gray-600 dark:text-gray-400 ">{{task.date}}</span>
         <badge v-if="task.type" :class="[badgeColor,'text-gray-200 ']" >{{task.type}}</badge>
       </div>
+
+      <!-- кнопки -->
+      <div v-if="task.isOpen"
+      class="flex  justify-between w-full mt-2 ">
+
+      <div @click.stop="kanban2Store.deleteTask(task)"
+          class="rounded-full  p-2 cursor-pointer hover:bg-red-700/70 hover:text-slate-100 dark:hover:bg-red-700/80 dark:hover:text-white">
+            <iTrash size="size-4" />
+          </div>   
+
+      <div  @click.stop="kanban2Store.editTask(task)"
+          class="rounded-full  p-2 cursor-pointer hover:bg-orange-600/70 hover:text-slate-100 dark:hover:bg-orange-600/70 dark:hover:text-white">
+            <iEdit size="size-4" />
+          </div>  
+
+ 
+      </div>
+
 
     </div>
   </template>

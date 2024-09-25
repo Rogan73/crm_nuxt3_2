@@ -1,3 +1,3 @@
 <template>
-    <task />
+    <task2 />
  </template>

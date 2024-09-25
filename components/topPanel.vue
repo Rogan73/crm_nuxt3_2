@@ -59,7 +59,7 @@ if (socket) {
 </script>
 
 <template>
-<div class="fixed top-2 left-0 right-0 mx-10 px-8 py-2 flex items-center justify-between rounded-full 
+<div class="fixed top-2 left-0 right-0 mx-8 px-8 py-2 flex items-center justify-between rounded-full 
           border border-slate-700/20  dark:border-slate-400/20
         bg-black/10  backdrop-blur-lg text-slate-800  
           dark:bg-slate-500/20 dark:backdrop-blur-lg dark:text-slate-300  
