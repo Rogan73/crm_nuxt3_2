@@ -4,8 +4,15 @@ import { useKanbanStore } from '@/stores/kanban'
 import InitWebSocket from '@/utils/WebSocket'
 import iLight from '@/components/icons/iLight.vue'
 import iDark from '@/components/icons/iDark.vue'
+import {useFirestoreStore } from '@/stores/firestore'
+
+
+
+
 
 const kanbanStore = useKanbanStore() 
+const FirestoreStore = useFirestoreStore()
+
 
 let socket: WebSocket | null = null;
 const messages = ref<string[]>([]);
@@ -23,9 +30,17 @@ const title=computed(()=>{
  return `${kanbanStore.state.title}`
 })
 
+
+
+
+
 onMounted(() => {
 
   kanbanStore.getBoard() 
+
+  FirestoreStore.getBoardTasks('boardId1').then((boardId)=>{
+    console.log('✅ boardId=> ',boardId)
+  })
 
 // if (!boardId.value) {
 //   console.error('Board ID is not set, cannot connect to WebSocket')
@@ -37,7 +52,7 @@ const webSocketInstance = InitWebSocket();
 messages.value = webSocketInstance.messages.value;
 socket = webSocketInstance.socket;
 
-console.log('WebSocket initialized in onMounted');
+console.log('🟢 WebSocket initialized in onMounted');
 
 
 }) 
@@ -90,13 +105,15 @@ if (socket) {
 
 
     <!-- Правая часть (можно добавить дополнительные элементы) -->
-    <div>
+    <div class="flex items-center space-x-4">
       <!-- Здесь можно разместить дополнительные элементы, если потребуется -->
       <btn-r    @click="toggleColorMode" class="px-[10px]">
          <div class="flex items-center justify-between gap-1">
                 <iLight /><div>/</div><iDark  class="pt-1" />
          </div>
       </btn-r>
+
+      <btn-r @click="FirestoreStore.logout">Logout</btn-r>
 
     </div>
   </div>

@@ -19,7 +19,7 @@ export default function InitWebSocket(): WebSocketReturn {
   socket = new WebSocket('ws://localhost:8787'); 
 
   socket.onopen = () => {
-    console.log('WebSocket connected');
+    console.log('✅ WebSocket connected');
   }
 
   socket.onmessage = (event: MessageEvent) => {

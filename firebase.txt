@@ -1,0 +1,50 @@
+npm install firebase
+
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyAXokJhImVcXzFuuoBsZYf-iM2mrVG3omE",
+  authDomain: "crm-r-3db0b.firebaseapp.com",
+  projectId: "crm-r-3db0b",
+  storageBucket: "crm-r-3db0b.appspot.com",
+  messagingSenderId: "153603750389",
+  appId: "1:153603750389:web:9d1628bb9ac87821e948bc"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+
+
+auth
+project-153603750389
+
+<template>
+  <div v-if="user">
+    Добро пожаловать, {{ user.displayName }}!
+  </div>
+  <div v-else>
+    <button @click="signInWithEmailAndPassword">Войти</button>
+  </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from 'vue';
+import { auth } from '../plugins/firebase';
+
+const user = ref(null);
+
+onMounted(() => {
+  auth.onAuthStateChanged((user) => {
+    user ? (user.displayName ? user.displayName : user.email) : null;
+  });
+});
+
+const signInWithEmailAndPassword = async () => {
+  // ...
+};
+</script>

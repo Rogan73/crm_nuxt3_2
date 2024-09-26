@@ -3,6 +3,8 @@ import draggable from "vuedraggable"
 import {glass } from '@/utils/ClassList'                       
 import TaskCard from "@/components/taskCard2.vue"
 import { useKanban2Store } from '@/stores/kanban2'
+import iPlus from '@/components/icons/iPlus.vue'
+
 
 
 const kanban2Store = useKanban2Store()   
@@ -22,7 +24,12 @@ const kanban2Store = useKanban2Store()
           
           :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-start   rounded-lg     ' ]"
         >
-          <p class="text-2xl font-bold    dark:text-violet-400  rounded-lg p-2 pt-0">{{ column.title }}</p>
+          <div class="text-2xl font-bold flex justify-between items-center   dark:text-violet-400  rounded-lg p-2 pt-0">
+              <div>{{ column.title }}</div>
+              <iPlus @click="kanban2Store.addTask(column.id)"
+              class=" rounded-full w-8 h-8 p-1 cursor-pointer  hover:text-white hover:bg-gray-500 dark:hover:bg-violet-600 dark:hover:text-white"/>
+            
+          </div>
           <draggable :list="column.tasks" :itemKey="column.title"  :animation="200" ghost-class="ghost-card" group="tasks">
             <template #item="{ element }" > 
               <task-card

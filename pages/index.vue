@@ -1,3 +1,10 @@
+<script setup>
+definePageMeta({
+  middleware: 'auth' 
+});
+
+</script>
+
 <template>
    <transition name="fade">
      <kanban2 />

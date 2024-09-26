@@ -2,14 +2,18 @@ import { defineStore } from "pinia"
 import { ref } from "vue"
 import type {Task,SelectedTaskRow } from '@/types/kanban2types'
 import { useConfirmStore } from '@/stores/storeConfirm'
+import { useFirestoreStore } from "@/stores/firestore"
 import { useRouter } from 'vue-router'
 
 
 export const useKanban2Store = defineStore("kanban2", () => {
 
 
+
+
     const   columns= ref([
         {
+          id: 'col1',
           title: "Backlog",
           tasks: [
             {
@@ -47,6 +51,7 @@ export const useKanban2Store = defineStore("kanban2", () => {
           ]
         },
         {
+          id: 'col2',
           title: "In Progress",
           tasks: [
             {
@@ -70,6 +75,7 @@ export const useKanban2Store = defineStore("kanban2", () => {
           ]
         },
         {
+          id: 'col3',
           title: "Review",
           tasks: [
             {
@@ -104,6 +110,7 @@ export const useKanban2Store = defineStore("kanban2", () => {
           ]
         },
         {
+          id: 'col4',
           title: "Done",
           tasks: [
             {
@@ -153,7 +160,20 @@ const ShowAlert=(text:String)=>{
 
 // Task
 
-const addTask = (columnId:number)=>{
+const addTask = (columnId:string)=>{
+
+  const { addTask } =  useFirestoreStore()
+ 
+
+  addTask('boardId1',columnId,{
+    title: "Add discount code to checkout page",
+    description: "lorem ipsum dolor sit amet...",
+    order: 1,
+    date: "2024-09-14",
+    columnId: "columnId1",
+    type: "Feature Request"
+  })
+
   // console.log('addNewTask');
   // state.value.selected_task={...Task_new.value}
   // state.value.selected_task.id_board=state.value.boards[state.value.selected_board_row].id
