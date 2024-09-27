@@ -1,7 +1,8 @@
 // plugins/firebase.js
 import { initializeApp, getApps } from 'firebase/app'
 import { getFirestore} from 'firebase/firestore'
-import { getAuth, GoogleAuthProvider } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider,onAuthStateChanged  } from 'firebase/auth'
+import { useFirestoreStore } from '@/stores/firestore'
 
 export default defineNuxtPlugin((nuxtApp) => {
   const config = useRuntimeConfig()
@@ -31,9 +32,34 @@ export default defineNuxtPlugin((nuxtApp) => {
     
   } else {
     firebaseApp = getApps()[0]
+    auth = getAuth(firebaseApp);
   }
 
   const firestore = getFirestore(firebaseApp)
+
+
+// Подписка на изменения состояния аутентификации
+onAuthStateChanged(auth, (user) => {
+  const  FirestoreStore=useFirestoreStore()
+  if (user) {
+    // Пользователь авторизован
+    console.log('User is signed in:', user.displayName);
+    
+    FirestoreStore.authUser = {
+      displayName: user.displayName,
+      email: user.email,
+    };
+  } else {
+    // Пользователь не авторизован
+    console.log('No user is signed in.');
+    FirestoreStore.authUser = {
+      displayName: '',
+      email: '',
+    }
+    
+
+  }
+})
 
 
 

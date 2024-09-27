@@ -11,7 +11,7 @@ export default defineNitroPlugin((nitroApp) => {
   wss = new WebSocketServer({ server: wsServer });
 
   wsServer.listen(8787, () => {
-    console.log('WebSocket server started on port 8787');
+    console.log('⚡ WebSocket server started on port 8787');
   });
 
   wss.on('connection', (ws) => {

@@ -25,7 +25,7 @@ const kanban2Store = useKanban2Store()
           :class="[glass,'shadow-lg p-4 flex gap-2 flex-col w-1/3 justify-start   rounded-lg     ' ]"
         >
           <div class="text-2xl font-bold flex justify-between items-center   dark:text-violet-400  rounded-lg p-2 pt-0">
-              <div>{{ column.title }}</div>
+              <div>{{ column.title}}</div>
               <iPlus @click="kanban2Store.addTask(column.id)"
               class=" rounded-full w-8 h-8 p-1 cursor-pointer  hover:text-white hover:bg-gray-500 dark:hover:bg-violet-600 dark:hover:text-white"/>
             

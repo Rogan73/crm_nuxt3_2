@@ -36,11 +36,15 @@ const title=computed(()=>{
 
 onMounted(() => {
 
-  kanbanStore.getBoard() 
+  //kanbanStore.getBoard() 
 
-  FirestoreStore.getBoardTasks('boardId1').then((boardId)=>{
-    console.log('✅ boardId=> ',boardId)
-  })
+  // FirestoreStore.getBoardTasks('boardId1').then((boardId)=>{
+  //   console.log('✅ boardId=> ',boardId)
+  // })
+
+  //FirestoreStore.fetchBoardData('boardId1') 
+  
+
 
 // if (!boardId.value) {
 //   console.error('Board ID is not set, cannot connect to WebSocket')
@@ -107,6 +111,10 @@ if (socket) {
     <!-- Правая часть (можно добавить дополнительные элементы) -->
     <div class="flex items-center space-x-4">
       <!-- Здесь можно разместить дополнительные элементы, если потребуется -->
+
+
+      <div>{{ FirestoreStore.authUser?.displayName }}</div>
+
       <btn-r    @click="toggleColorMode" class="px-[10px]">
          <div class="flex items-center justify-between gap-1">
                 <iLight /><div>/</div><iDark  class="pt-1" />

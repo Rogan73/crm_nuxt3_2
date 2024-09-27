@@ -1,9 +1,21 @@
 import { getFirestore, collection, doc, setDoc, getDoc,getDocs, addDoc,query, where, updateDoc, deleteDoc } from 'firebase/firestore';
 //import { useRouter } from 'vue-router'
 
+
+// interface authUser {
+//   displayName: string | null;
+//   email: string | null;
+  
+// }
+
 export const useFirestoreStore = defineStore("Firestore", () => {
 
 const db = getFirestore();
+
+const authUser=ref({displayName: '', email: ''})
+
+const columns=ref([])
+
 
 // Создание новой доски
 const createBoard = async (boardData) => {
@@ -73,18 +85,101 @@ const logout = async () => {
     console.log('Logged out successfully');
     
   } catch (error) {
-    console.error('Error logging out:', error);
+    console.log('Error logging out:', error);
   }
 }
 
 
- return {
+// НОВЫЕ ФУНКЦИИ ==============================
 
+
+const fetchBoardData = async (boardId) => {
+  const boardRef = doc(db, 'boards', boardId);
+  const boardSnap = await getDoc(boardRef);
+
+  if (boardSnap.exists()) {
+    const columnsSnap = await getDocs(collection(boardRef, 'columns'));
+
+    const columnsData = await Promise.all(
+      columnsSnap.docs.map(async (columnDoc) => {
+        const tasksSnap = await getDocs(collection(columnDoc.ref, 'tasks'));
+        const tasksData = tasksSnap.docs.map((taskDoc) => ({
+          id: taskDoc.id,
+          ...taskDoc.data()
+        }));
+        return {
+          id: columnDoc.id,
+          title: columnDoc.data().title,
+          tasks: tasksData,
+        };
+      })
+    );
+
+    columns.value = columnsData;
+
+    console.log(columns.value);
+    
+
+  } else {
+    console.log("No such board!");
+  }
+
+  return columns.value;
+  
+
+};
+
+
+
+
+// Функция для добавления задачи в колонку col1 доски с ID "boardId1"
+const addTaskToFirstColumn = async (boardId, newTask) => {
+  const columnId = 'col1'; // ID первой колонки
+  const tasksRef = collection(db, 'boards', boardId, 'columns', columnId, 'tasks');
+
+  // Получаем все задачи и сортируем по полю order, чтобы найти максимальное значение
+  const tasksQuery = query(tasksRef, orderBy('order', 'desc'));
+  const querySnapshot = await getDocs(tasksQuery);
+
+  let maxOrder = 0;
+  querySnapshot.forEach((doc) => {
+    const taskData = doc.data();
+    if (taskData.order > maxOrder) {
+      maxOrder = taskData.order;
+    }
+  });
+
+  // Увеличиваем maxOrder на 1 для новой задачи
+  const newOrder = maxOrder + 1;
+
+  // Генерируем новый ID для задачи
+  const newTaskId = `${Date.now()}`; // Можно использовать любое уникальное значение
+
+  // Добавляем задачу с новым order
+  const newTaskRef = doc(db, 'boards', boardId, 'columns', columnId, 'tasks', newTaskId);
+
+  // Вставляем данные новой задачи
+  await setDoc(newTaskRef, {
+    ...newTask, // Переданные данные задачи
+    order: newOrder, // Добавляем порядковый номер
+  });
+
+  console.log(`Задача добавлена в колонку ${columnId} с порядковым номером ${newOrder}`);
+};
+
+
+
+
+ return {
+  authUser,
+  columns,
   createBoard,
   getBoardTasks,
   updateTask,
   addTask,
   logout,
+  addTaskToFirstColumn,
+  fetchBoardData,
  }
 
 

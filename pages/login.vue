@@ -4,6 +4,9 @@
   import iAuth from '@/components/icons/iAuth.vue'
   import iLight from '@/components/icons/iLight.vue'
   import iDark from '@/components/icons/iDark.vue'
+  import { signInWithPopup } from 'firebase/auth'
+  import { useFirestoreStore } from '@/stores/firestore';
+
 
   definePageMeta({ layout: 'auth' });
   
@@ -12,12 +15,41 @@
   
   const loginWithGoogle = async () => {
     try {
+
+      //if (process.client) {
       if ($authFB && $providerFB) {
-        await $authFB.signInWithPopup($providerFB); // Авторизация через Google
+        
+        const result = await signInWithPopup($authFB, $providerFB) // Авторизация через Google
+
+        // Данные пользователя доступны через result.user
+
+       
+
+        const user = result.user;
+
+        const FirestoreStore = useFirestoreStore()
+        
+        FirestoreStore.authUser.value = {
+        displayName: user.displayName,
+        email: user.email,
+        }
+
+        const displayName = user.displayName; // Имя пользователя
+        const email = user.email; // Email пользователя
+
+        
+        
+
+        console.log(`User name: ${displayName}`);
+        console.log(`User email: ${email}`);
+
+
         router.push('/'); // После успешного входа перенаправляем на главную страницу
       }
+      //}
+
     } catch (error) {
-      console.error('Error logging in:', error);
+      console.log('Error logging in:', error);
     }
   };
 
@@ -52,7 +84,7 @@
 
     </div>
 
-    <div class="flex flex-col gap-4 justify-center items-center  mt-10 text-white bg-slate-600/30 p-6 rounded-xl ">
+    <div class="flex flex-col gap-4 justify-center items-center  mt-10 dark:text-white text-slate-800 bg-slate-200/90 dark:bg-slate-600/20 p-6 rounded-xl ">
       <h1 class="">Login with Google</h1>
       <btn-r @click="loginWithGoogle()">Sign in with Google</btn-r>
     </div>

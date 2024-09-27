@@ -2,7 +2,8 @@ import { resolve } from 'path'
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
-  ssr:false,
+  ssr: false, // Отключаем серверное рендеринг
+  
   alias: {
     '@': resolve(__dirname, './'),
   },
@@ -13,7 +14,7 @@ export default defineNuxtConfig({
 
 
   compatibilityDate: '2024-04-03',
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   modules: [
     '@nuxtjs/color-mode',
     '@nuxtjs/tailwindcss',
