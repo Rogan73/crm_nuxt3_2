@@ -12,6 +12,7 @@ const kanban2Store = useKanban2Store()
   const props = defineProps<{
     task: Task;
     columnIndex: number;
+    taskIndex: number;
   }>()
 
 
@@ -34,7 +35,7 @@ const kanban2Store = useKanban2Store()
 const selectTask = ()=>{
   selected_task_id.value = props.task.id
 
-  const taskIndex=kanban2Store.columns[props.columnIndex].tasks.findIndex(task => task.id === props.task.id)
+  const taskIndex=kanban2Store.columns[props.columnIndex].tasks.findIndex((task_: { id: number; }) => task_.id === props.task.id)
   kanban2Store.columns[props.columnIndex].tasks[taskIndex].isOpen = !kanban2Store.columns[props.columnIndex].tasks[taskIndex].isOpen
 
   kanban2Store.SelectedTaskRow={columnRow:props.columnIndex,taskRow:taskIndex}
@@ -85,12 +86,15 @@ const selectTask = ()=>{
       <div v-if="task.isOpen"
       class="flex  justify-between w-full mt-2 ">
 
-      <div @click.stop="kanban2Store.deleteTask(task)"
+      <div @click.stop="kanban2Store.deleteTask(columnIndex,taskIndex)"
           class="rounded-full  p-2 cursor-pointer hover:bg-red-700/70 hover:text-slate-100 dark:hover:bg-red-700/80 dark:hover:text-white">
             <iTrash size="size-4" />
           </div>   
 
-      <div  @click.stop="kanban2Store.editTask(task)"
+     <!-- <div>{{ props.columnIndex }} {{  props.taskIndex }}</div>  -->
+
+
+      <div  @click.stop="kanban2Store.editTask(task,columnIndex,taskIndex)"
           class="rounded-full  p-2 cursor-pointer hover:bg-orange-600/70 hover:text-slate-100 dark:hover:bg-orange-600/70 dark:hover:text-white">
             <iEdit size="size-4" />
           </div>  

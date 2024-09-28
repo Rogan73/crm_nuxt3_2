@@ -5,10 +5,11 @@ import TaskCard from "@/components/taskCard2.vue"
 import { useKanban2Store } from '@/stores/kanban2'
 import iPlus from '@/components/icons/iPlus.vue'
 
-
-
 const kanban2Store = useKanban2Store()   
 
+const getTaskIndex = (columnIndex:number,taskId:number) => {
+  return kanban2Store.columns[columnIndex].tasks.findIndex( (t:{id:number}) => t.id == taskId);
+};
 </script>
 
 <template>
@@ -16,8 +17,8 @@ const kanban2Store = useKanban2Store()
 
     
     <div class="flex justify-center px-6">
-      <div class="flex w-full justify-between gap-4">
-        <!-- class="bg-gray-100 rounded-lg px-3 py-3 column-width mr-4" -->
+      <div class="flex w-[98vw] justify-between gap-4 mx-auto">
+    
         <div
           v-for="(column, index) in kanban2Store.columns"
           :key="index"
@@ -37,7 +38,7 @@ const kanban2Store = useKanban2Store()
                 :key="element.id"
                 :task="element"
                 :columnIndex="index"
-                :taskIndex="0"
+                :taskIndex="getTaskIndex(index,element.id)"
                 class="mt-3 cursor-move"
               />
             </template>
@@ -58,7 +59,8 @@ const kanban2Store = useKanban2Store()
 but you'd use "@apply border opacity-50 border-blue-500 bg-gray-200" here */
 .ghost-card {
   opacity: 0.5;
-  background: #F7FAFC;
+  background: #dfdfe0;
   border: 1px solid #4299e1;
+  color: black;
 }
 </style>

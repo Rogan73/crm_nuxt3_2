@@ -16,7 +16,13 @@ export interface Task {
 
 }
 
+export interface SelectedBoard {
+  boardId: string;
+  boardName: string;
+}
+
 export interface SelectedTaskRow {
   columnRow: number;
   taskRow: number;
 }
+

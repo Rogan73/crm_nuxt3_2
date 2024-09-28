@@ -7,14 +7,36 @@ import { initializeApp } from "firebase/app";
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyAXokJhImVcXzFuuoBsZYf-iM2mrVG3omE",
-  authDomain: "crm-r-3db0b.firebaseapp.com",
-  projectId: "crm-r-3db0b",
-  storageBucket: "crm-r-3db0b.appspot.com",
-  messagingSenderId: "153603750389",
-  appId: "1:153603750389:web:9d1628bb9ac87821e948bc"
-};
+
+
+RULS
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Правила для коллекции boards и всех вложенных подколлекций
+    match /boards/{boardId} {
+      // Разрешить чтение для всех
+      allow read: if true;
+
+      // Разрешить запись только авторизованным пользователям
+      allow write: if request.auth != null;
+
+      // Правила для всех подколлекций в boards
+      match /{document=**} {
+        // Разрешить чтение для всех
+        allow read: if true;
+
+        // Разрешить запись только авторизованным пользователям
+        allow write: if request.auth != null;
+      }
+    }
+  }
+}
+
+
+
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);

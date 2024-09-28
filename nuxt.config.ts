@@ -70,17 +70,17 @@ export default defineNuxtConfig({
   nitro: {
 
     plugins: [
-      '@/server/plugins/initWebSocket.plugin.ts',
+      // '@/server/plugins/initWebSocket.plugin.ts',
     ],
     experimental: {
-      database: true
+      // database: true
     },
-    database:{
-      DBKanban: {
-        connector: 'sqlite',
-        options: { name: 'dbkanban' }
-      },
-    },
+    // database:{
+    //   DBKanban: {
+    //     connector: 'sqlite',
+    //     options: { name: 'dbkanban' }
+    //   },
+    // },
     devProxy: {
       host: '127.0.0.1',
     },

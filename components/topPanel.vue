@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { onMounted, onBeforeUnmount, ref,computed } from 'vue' 
-import { useKanbanStore } from '@/stores/kanban' 
-import InitWebSocket from '@/utils/WebSocket'
+//import { useKanbanStore } from '@/stores/kanban' 
+//import InitWebSocket from '@/utils/WebSocket'
 import iLight from '@/components/icons/iLight.vue'
 import iDark from '@/components/icons/iDark.vue'
 import {useFirestoreStore } from '@/stores/firestore'
+import { useKanban2Store } from '@/stores/kanban2'
 
 
 
 
 
-const kanbanStore = useKanbanStore() 
+//const kanbanStore = useKanbanStore() 
 const FirestoreStore = useFirestoreStore()
+const Kanban2Store = useKanban2Store()
 
-
-let socket: WebSocket | null = null;
-const messages = ref<string[]>([]);
+//let socket: WebSocket | null = null;
+//const messages = ref<string[]>([]);
 
 const pkg = await import('@/package.json')
 
@@ -27,7 +28,7 @@ const toggleColorMode = () => {
 
 const title=computed(()=>{
   //const name=kanbanStore.state.boards.length > 0 ? kanbanStore.state.boards[kanbanStore.state.selected_board_row].name : ''
- return `${kanbanStore.state.title}`
+ return  Kanban2Store.selectedBoard.boardName//`${kanbanStore.state.title}`
 })
 
 
@@ -36,27 +37,19 @@ const title=computed(()=>{
 
 onMounted(() => {
 
-  //kanbanStore.getBoard() 
 
-  // FirestoreStore.getBoardTasks('boardId1').then((boardId)=>{
-  //   console.log('✅ boardId=> ',boardId)
-  // })
 
   //FirestoreStore.fetchBoardData('boardId1') 
   
 
 
-// if (!boardId.value) {
-//   console.error('Board ID is not set, cannot connect to WebSocket')
-//   return
-// }
 
 
-const webSocketInstance = InitWebSocket();
-messages.value = webSocketInstance.messages.value;
-socket = webSocketInstance.socket;
 
-console.log('🟢 WebSocket initialized in onMounted');
+// const webSocketInstance = InitWebSocket();
+// messages.value = webSocketInstance.messages.value;
+// socket = webSocketInstance.socket;
+// console.log('🟢 WebSocket initialized in onMounted');
 
 
 }) 
@@ -66,10 +59,10 @@ console.log('🟢 WebSocket initialized in onMounted');
 
 onBeforeUnmount(() => {
 
-if (socket) {
-  socket.close();
-  console.log('WebSocket connection closed');
-}
+// if (socket) {
+//   socket.close();
+//   console.log('WebSocket connection closed');
+// }
 
 
 })
