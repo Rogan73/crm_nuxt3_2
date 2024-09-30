@@ -6,6 +6,7 @@ import iLight from '@/components/icons/iLight.vue'
 import iDark from '@/components/icons/iDark.vue'
 import {useFirestoreStore } from '@/stores/firestore'
 import { useKanban2Store } from '@/stores/kanban2'
+import iBoards from '@/components/icons/iBoards.vue'
 
 
 
@@ -14,6 +15,8 @@ import { useKanban2Store } from '@/stores/kanban2'
 //const kanbanStore = useKanbanStore() 
 const FirestoreStore = useFirestoreStore()
 const Kanban2Store = useKanban2Store()
+
+const boardIsOpen =ref(false)
 
 //let socket: WebSocket | null = null;
 //const messages = ref<string[]>([]);
@@ -28,11 +31,14 @@ const toggleColorMode = () => {
 
 const title=computed(()=>{
   //const name=kanbanStore.state.boards.length > 0 ? kanbanStore.state.boards[kanbanStore.state.selected_board_row].name : ''
- return  Kanban2Store.selectedBoard.boardName//`${kanbanStore.state.title}`
+ return  FirestoreStore.currentBoard.boardName//`${kanbanStore.state.title}`
 })
 
 
-
+const changeBoard = (id:string) => {
+  FirestoreStore.changeBoard(id); 
+  boardIsOpen.value=false;
+}
 
 
 onMounted(() => {
@@ -96,9 +102,28 @@ onBeforeUnmount(() => {
         <option value="board3">Board 3</option>
       </select> -->
     </div>
-    
-  <div class="uppercase text-2xl pr-2 text-slate-800 dark:text-slate-200">{{ title }}
-  </div> 
+
+    <div class="flex items-center space-x-2 relative">
+      <div class="uppercase text-2xl pr-2 text-slate-800 dark:text-slate-200">{{ title }}
+      </div> 
+      <iBoards @click="boardIsOpen=!boardIsOpen"
+      class="rounded-full w-8 h-8 p-1 cursor-pointer hover:text-slate-200 dark:hover:bg-violet-700 hover:bg-violet-500" />
+      
+      <div v-if="boardIsOpen"
+      class="absolute right-0 top-8  bg-slate-200  dark:bg-gray-700 p-2 rounded-lg border dark:border-slate-500/50  border-slate-700/20">
+
+       
+
+        <div class="px-3 py-1 w-48 text-center rounded-full cursor-pointer hover:text-slate-100 dark:hover:bg-violet-700 hover:bg-violet-500"
+        v-for="(board,i) in FirestoreStore.boards" :key="i"
+        @click="changeBoard(String((board as any).id))"
+        >
+          {{(board as any).title }}
+        </div>
+
+      </div>
+
+    </div>  
 
 
     <!-- Правая часть (можно добавить дополнительные элементы) -->

@@ -1,5 +1,5 @@
 import { getFirestore, collection, doc, setDoc, getDoc,getDocs, addDoc,query, where, updateDoc, deleteDoc } from 'firebase/firestore';
-
+import {useKanban2Store} from '@/stores/kanban2'
 
 export const useFirestoreStore = defineStore("Firestore", () => {
 
@@ -7,7 +7,10 @@ const db = getFirestore();
 
 const authUser=ref({displayName: '', email: ''})
 
+
+const boards=ref([])
 const columns=ref([])
+const currentBoard=ref({boardId:'',boardName:''})
 
 
 // Создание новой доски
@@ -42,6 +45,61 @@ const logout = async () => {
 
 // НОВЫЕ ФУНКЦИИ ==============================
 
+const fetchBoards = async () => {
+  try {
+
+  const boardRef = collection(db, 'boards')
+  const boardSnap = await getDocs(boardRef)
+
+  boards.value = boardSnap.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }))
+  //console.log('boards', boards.value);
+
+
+
+} catch (error) {
+    console.error('Error fetching boards:', error)
+  }
+   
+}
+
+const LoadBoardData = async () => {
+
+  
+  
+  await fetchBoards() 
+
+  
+
+    if (localStorage.currentBoard){
+      currentBoard.value=JSON.parse(localStorage.currentBoard)
+
+      //console.log('currentBoard localStorage',currentBoard.value);
+      
+
+      }else{
+        currentBoard.value= {
+          boardId: boards.value[0].id,
+          boardName: boards.value[0].title
+       }
+
+       //console.log('currentBoard =',currentBoard.value);
+
+       localStorage.currentBoard = JSON.stringify(currentBoard.value)
+      }
+
+      
+    
+   await fetchBoardData(currentBoard.value.boardId)
+    
+  
+   
+
+}
+
+
 
 const fetchBoardData = async (boardId) => {
   const boardRef = doc(db, 'boards', boardId);
@@ -67,7 +125,7 @@ const fetchBoardData = async (boardId) => {
 
     columns.value = columnsData;
 
-    console.log(columns.value);
+   // console.log(columns.value);
     
 
   } else {
@@ -79,6 +137,38 @@ const fetchBoardData = async (boardId) => {
 
 };
 
+const changeBoard=(boardId)=>{
+  //console.log(1);
+  
+  const boardRow=boards.value.findIndex(board=>board.id==boardId)
+  //console.log(2,boardRow);
+  currentBoard.value= {
+    boardId: boards.value[boardRow].id,
+    boardName: boards.value[boardRow].title
+ }
+  const Kanban2Store=useKanban2Store()
+  Kanban2Store.selectedBoard={
+    boardId: boards.value[boardRow].id,
+    boardName: boards.value[boardRow].title
+  }
+
+  localStorage.currentBoard = JSON.stringify(currentBoard.value)
+ //console.log('currentBoard.value.boardId',currentBoard.value.boardId);
+
+
+  fetchBoardData(currentBoard.value.boardId).then(()=>{
+
+    Kanban2Store.columns=columns.value
+
+  })
+  
+  
+
+}
+
+
+
+//  TASK
 
 const addTaskToColumn = async (boardId, columnId, taskData) => {
   try {
@@ -123,11 +213,16 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
  return {
   authUser,
   columns,
+  currentBoard,
+  boards,
   createBoard,
   logout,
   addTaskToColumn,
   updateTask,
+  LoadBoardData,
   fetchBoardData,
+  fetchBoards,
+  changeBoard,
  }
 
 

@@ -8,17 +8,32 @@ import { useRouter } from 'vue-router'
 
 export const useKanban2Store = defineStore("kanban2", () => {
 
+  
 
   const selectedBoard=ref<SelectedBoard>({boardId:'boardId1',boardName:'mainboard'})
 
   const FirestoreStore= useFirestoreStore()
   const   columns= ref<any[]>([])
 
-  FirestoreStore.fetchBoardData(selectedBoard.value.boardId).then((data:any) => {
+  
+  FirestoreStore.LoadBoardData().then(() => {
 
-   columns.value = data
+    selectedBoard.value={
+      boardId:FirestoreStore.currentBoard.boardId,
+      boardName:FirestoreStore.currentBoard.boardName
+    }
 
-  }) 
+    columns.value=FirestoreStore.columns
+    
+  })
+
+
+
+  // FirestoreStore.fetchBoardData(selectedBoard.value.boardId).then((data:any) => {
+
+  //  columns.value = data
+
+  // }) 
 
   
   
