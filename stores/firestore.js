@@ -207,7 +207,39 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
   }
 };
 
+ const DeleteTask=async(boardId, columnId, taskId)=>{
+  try {
+    // Ссылка на коллекцию задач внутри конкретной колонки
+    const columnRef = doc(db, 'boards', boardId, 'columns', columnId);
+    const tasksCollectionRef = collection(columnRef, 'tasks');
+    // Ссылка на конкре
+    const taskRef = doc(tasksCollectionRef, taskId);
+    // Обновление задачи
+    await deleteDoc(taskRef);
+    console.log(`Задача с ID ${taskId} удалена`);
+  } catch (error) {
+    console.error("Ошибка при обновлении задачи: ", error);
+  }
 
+ }
+
+ const updateTaskOrderInColumn=async(columnId,taskId,Index)=>{
+  try {
+    // Ссылка на коллекцию задач внутри конкретной колонки
+    const columnRef = doc(db, 'boards', boardId, 'columns', columnId);
+    const tasksCollectionRef = collection(columnRef, 'tasks');
+    const taskRef = doc(tasksCollectionRef, taskId);
+    // Обновление задачи
+    await updateDoc(taskRef, {
+      order_index: Index
+    });
+    
+  } catch (error) {
+    console.error("Ошибка при обновлении order_index: ", error);
+  }
+
+
+ }
 
 
  return {
@@ -218,11 +250,13 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
   createBoard,
   logout,
   addTaskToColumn,
+  DeleteTask,
   updateTask,
   LoadBoardData,
   fetchBoardData,
   fetchBoards,
   changeBoard,
+  updateTaskOrderInColumn,
  }
 
 

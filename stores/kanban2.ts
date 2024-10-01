@@ -29,141 +29,6 @@ export const useKanban2Store = defineStore("kanban2", () => {
 
 
 
-  // FirestoreStore.fetchBoardData(selectedBoard.value.boardId).then((data:any) => {
-
-  //  columns.value = data
-
-  // }) 
-
-  
-  
-
-    // const   columns= ref([
-    //     {
-    //       id: 'col1',
-    //       title: "Backlog",
-    //       tasks: [
-    //         {
-    //           id: 1,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request",
-    //           description: "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua",
-    //           isOpen: false
-    //         },
-    //         {
-    //           id: 2,
-    //           title: "Provide documentation on integrations",
-    //           date: "Sep 12"
-              
-    //         },
-    //         {
-    //           id: 3,
-    //           title: "Design shopping cart dropdown",
-    //           date: "Sep 9",
-    //           type: "Design"
-    //         },
-    //         {
-    //           id: 4,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request"
-    //         },
-    //         {
-    //           id: 5,
-    //           title: "Test checkout flow",
-    //           date: "Sep 15",
-    //           type: "QA"
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       id: 'col2',
-    //       title: "In Progress",
-    //       tasks: [
-    //         {
-    //           id: 6,
-    //           title: "Design shopping cart dropdown",
-    //           date: "Sep 9",
-    //           type: "Design"
-    //         },
-    //         {
-    //           id: 7,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request"
-    //         },
-    //         {
-    //           id: 8,
-    //           title: "Provide documentation on integrations",
-    //           date: "Sep 12",
-    //           type: "Backend"
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       id: 'col3',
-    //       title: "Review",
-    //       tasks: [
-    //         {
-    //           id: 9,
-    //           title: "Provide documentation on integrations",
-    //           date: "Sep 12"
-    //         },
-    //         {
-    //           id: 10,
-    //           title: "Design shopping cart dropdown",
-    //           date: "Sep 9",
-    //           type: "Design"
-    //         },
-    //         {
-    //           id: 11,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request"
-    //         },
-    //         {
-    //           id: 12,
-    //           title: "Design shopping cart dropdown",
-    //           date: "Sep 9",
-    //           type: "Design"
-    //         },
-    //         {
-    //           id: 13,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request"
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       id: 'col4',
-    //       title: "Done",
-    //       tasks: [
-    //         {
-    //           id: 14,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request"
-    //         },
-    //         {
-    //           id: 15,
-    //           title: "Design shopping cart dropdown",
-    //           date: "Sep 9",
-    //           type: "Design"
-    //         },
-    //         {
-    //           id: 16,
-    //           title: "Add discount code to checkout page",
-    //           date: "Sep 14",
-    //           type: "Feature Request"
-    //         }
-    //       ]
-    //     }
-    //   ]
-
-    // )
-
     const router = useRouter()
 
   
@@ -216,19 +81,28 @@ const addTask = (columnId:string)=>{
           title: selectedTask.value.title,
           date: selectedTask.value.date,
           type: selectedTask.value.type,
-          description: selectedTask.value.description,
-          isOpen: selectedTask.value.isOpen,
+          description: selectedTask.value.description
         })
       }
       if(operation.value=='EditTask'){
         console.log('EditTask')
-        FirestoreStore.updateTask(selectedBoard.value.boardId,SelectedTaskRow.value.columnRow,SelectedTaskRow.value.taskRow,{
+
+        const columnId=columns.value[SelectedTaskRow.value.columnRow].id
+        const taskId=columns.value[SelectedTaskRow.value.columnRow].tasks[SelectedTaskRow.value.taskRow].id
+
+        FirestoreStore.updateTask(selectedBoard.value.boardId,columnId,taskId,{
           title: selectedTask.value.title,
           date: selectedTask.value.date,
           type: selectedTask.value.type,
           description: selectedTask.value.description,
-          isOpen: selectedTask.value.isOpen,
+        }).then(()=>{
+          columns.value[SelectedTaskRow.value.columnRow].tasks[SelectedTaskRow.value.taskRow]=selectedTask.value    
+          router.push('/')
+
         })
+
+         
+
       }
 
 
@@ -247,13 +121,7 @@ const addTask = (columnId:string)=>{
     }
 
 
-
-  
-
-
     const deleteTask=(columnIndex:number,taskIndex:number)=>{
-
-      console.log('deleteTask',columnIndex,taskIndex);
 
       SelectedTaskRow.value.columnRow=columnIndex
       SelectedTaskRow.value.taskRow=taskIndex
@@ -262,12 +130,17 @@ const addTask = (columnId:string)=>{
         'delete','Warning','Are you sure you want to delete this task?',
         async() => { 
           //onConfirm
+
+          const FirestoreStore =  useFirestoreStore()
+
+          const columnId=columns.value[SelectedTaskRow.value.columnRow].id
+          const taskId=columns.value[SelectedTaskRow.value.columnRow].tasks[SelectedTaskRow.value.taskRow].id
+
+          FirestoreStore.DeleteTask(selectedBoard.value.boardId,columnId,taskId).then(()=>{
+            columns.value[SelectedTaskRow.value.columnRow].tasks.splice(SelectedTaskRow.value.taskRow,1)
+          })
+
           
-        //  await  deleteFormDB('task','tasks',String(task.id))
-          //console.log('SelectedTaskRow.value.columnRow',SelectedTaskRow.value.columnRow);
-          //console.log('SelectedTaskRow.value.taskRow',SelectedTaskRow.value.taskRow);
-          
-          columns.value[SelectedTaskRow.value.columnRow].tasks.splice(SelectedTaskRow.value.taskRow,1)
 
         },
         () => {  
@@ -285,6 +158,126 @@ const addTask = (columnId:string)=>{
       router.push('/')
     }
 
+
+   const onTaskChange=(event: any,columnIndex:number)=>{
+
+    const { oldIndex, newIndex } = event;
+
+    console.log('oldIndex',oldIndex,'newIndex',newIndex,'columnIndex',columnIndex);
+    
+
+    //console.log(`Задача перемещена внутри колонки ${kanban2Store.columns[columnIndex].title}`);
+    //updateTaskOrderInColumn(columnIndex, event.items);
+
+    // Обновление порядка задач, если они изменились местами
+/*     if (oldIndex !== newIndex) {
+      await this.updateTaskOrder();
+    } */
+
+   }
+
+
+  const onTaskStart=(event: any,columnIndex:number)=>{
+    const { oldIndex, newIndex } = event;
+    console.log('onTaskStart',oldIndex,newIndex)
+  }
+
+  const onTaskEnd=(event: any,columnIndex:number)=>{
+    const { oldIndex, newIndex } = event;
+    console.log('onTaskEnd','oldIndex',oldIndex,'newIndex',newIndex,'columnIndex',columnIndex)
+    console.log('event',event);
+
+// Получаем новую колонку через event.to
+const newColumnElement = event.to; 
+const newColumnIndex = Array.from(newColumnElement.parentNode.children).indexOf(newColumnElement);
+console.log('newColumnIndex',newColumnIndex);
+
+
+    
+  }
+
+
+let addednewTaskIndex : number
+let addedColumnIndex: number
+
+const seeChange=(event: any, columnIndex:number)=>{
+  //console.log('seeChange',event, col)
+
+  if (event.added) {
+    const addedTask = event.added.element;
+    const newTaskIndex = event.added.newIndex;
+
+    addednewTaskIndex = event.added.newIndex;
+    addedColumnIndex = columnIndex
+
+    console.log(`Задача добавлена в колонку ${columns.value[columnIndex].id} на индекс ${newTaskIndex}`);
+    
+   //обновить 
+
+
+    // Обновляем базу данных, перемещая задачу в новую колонку
+    //await kanban2Store.addTaskToColumn(columnIndex, addedTask, newTaskIndex);
+  }
+
+
+  if (event.removed) {
+    const removedTask = event.removed.element;
+    const oldTaskIndex = event.removed.oldIndex;
+
+    console.log(`Задача удалена из колонки ${columns.value[columnIndex].id} с индекса ${oldTaskIndex}`);
+    
+   // по завершению сначала будет added затем removed  если колонка меняется
+   // надо обновить order_index для исходной колонки для всех всех задач в этой колонке 
+   // потом и обновить order_index для новой колонки для всех всех задач в этой колонке
+
+   // удалить из старой колоки
+   // добавить в новую колонку
+   // обновить order_index для всех задач в этой колонке
+   // обновить order_index для всех задач в новой колонке
+    let columnId=columns.value[columnIndex].id
+
+     // для всех tasks обновить order_index
+
+     columns.value[columnIndex].tasks.forEach((task:any,index:number)=>{
+       FirestoreStore.updateTaskOrderInColumn(columnId,task.id,index)
+     })
+
+     columnId=columns.value[addedColumnIndex].id
+     columns.value[addedColumnIndex].tasks.forEach((task:any,index:number)=>{
+      FirestoreStore.updateTaskOrderInColumn(columnId,task.id,index)
+    })
+
+
+
+
+    // Удаляем задачу из старой колонки
+    //await kanban2Store.removeTaskFromColumn(columnIndex, removedTask);
+  }
+
+  if (event.moved) {
+    console.log('Колонка не изменилась',event.moved.oldIndex,event.moved.newIndex);
+    // обновить order_index для колокни columnIndex
+    const columnId=columns.value[columnIndex].id
+    // для всех tasks обновить order_index
+
+    columns.value[columnIndex].tasks.forEach((task:any,index:number)=>{
+      FirestoreStore.updateTaskOrderInColumn(columnId,task.id,index)
+    })
+
+
+  }
+
+}
+
+
+// async function updateTaskInFirestore(task: Task) {
+//   const taskRef = firestore.collection('tasks').doc(task.id);
+//   await taskRef.update({
+//     order_index: task.order_index
+//   });
+// }
+
+
     return{
       
         columns,
@@ -298,7 +291,11 @@ const addTask = (columnId:string)=>{
         deleteTask,
         saveTask,
         cancelTask,
+        onTaskChange,
         ShowAlert,
+        onTaskStart,
+        onTaskEnd,
+        seeChange
 
 
     }

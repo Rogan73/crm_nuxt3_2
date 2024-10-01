@@ -31,10 +31,18 @@ const getTaskIndex = (columnIndex:number,taskId:number) => {
               class=" rounded-full w-8 h-8 p-1 cursor-pointer  hover:text-white hover:bg-gray-500 dark:hover:bg-violet-600 dark:hover:text-white"/>
             
           </div>
-          <draggable :list="column.tasks" :itemKey="column.title"  :animation="200" ghost-class="ghost-card" group="tasks">
+          <draggable 
+          :list="column.tasks" 
+          :itemKey="column.title"  
+          :animation="200" 
+          ghost-class="ghost-card" 
+          group="tasks"
+          @change="kanban2Store.seeChange($event, index)"
+          >
+          <!-- // @start="kanban2Store.onTaskStart($event, index)" -->
+
             <template #item="{ element }" > 
               <task-card
-                
                 :key="element.id"
                 :task="element"
                 :columnIndex="index"
