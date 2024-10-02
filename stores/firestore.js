@@ -123,6 +123,12 @@ const fetchBoardData = async (boardId) => {
       })
     );
 
+    // сорировать в columnsData все tasks по полю order_index если оно есть
+    columnsData.forEach((column) => {
+      column.tasks.sort((a, b) => a.order_index - b.order_index);
+    });
+    
+
     columns.value = columnsData;
 
    // console.log(columns.value);
@@ -223,14 +229,34 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
 
  }
 
- const updateTaskOrderInColumn=async(columnId,taskId,Index)=>{
+ const updateTaskOrderInColumn=async(boardId,columnId,taskId,Index)=>{
   try {
     // Ссылка на коллекцию задач внутри конкретной колонки
-    const columnRef = doc(db, 'boards', boardId, 'columns', columnId);
-    const tasksCollectionRef = collection(columnRef, 'tasks');
-    const taskRef = doc(tasksCollectionRef, taskId);
+    // const columnRef = doc(db, 'boards', boardId, 'columns', columnId);
+    // const tasksCollectionRef = collection(columnRef, 'tasks');
+    // const taskRef = doc(tasksCollectionRef, taskId);
+
+
+    // // Ссылка на документ board
+    const boardDocRef = doc(db, 'boards', boardId);
+    
+    // Ссылка на коллекцию columns внутри документа board
+    const columnsCollectionRef = collection(boardDocRef, 'columns');
+    
+    // Ссылка на конкретную колонку
+    const columnDocRef = doc(columnsCollectionRef, columnId);
+    
+    // Ссылка на коллекцию задач внутри конкретной колонки
+    const tasksCollectionRef = collection(columnDocRef, 'tasks');
+    
+    // Ссылка на конкретную задачу
+    const taskDocRef = doc(tasksCollectionRef, taskId);
+
+
+
+
     // Обновление задачи
-    await updateDoc(taskRef, {
+    await updateDoc(taskDocRef, {
       order_index: Index
     });
     

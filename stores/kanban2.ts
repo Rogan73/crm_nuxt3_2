@@ -261,7 +261,7 @@ const seeChange=(event: any, columnIndex:number)=>{
     // для всех tasks обновить order_index
 
     columns.value[columnIndex].tasks.forEach((task:any,index:number)=>{
-      FirestoreStore.updateTaskOrderInColumn(columnId,task.id,index)
+      FirestoreStore.updateTaskOrderInColumn(selectedBoard.value.boardId, columnId,task.id,index)
     })
 
 
