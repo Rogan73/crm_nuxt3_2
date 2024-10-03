@@ -191,7 +191,7 @@ const addTaskToColumn = async (boardId, columnId, taskData) => {
       ...taskData
     })
 
-    console.log(`Задача добавлена с ID: ${newTaskRef.id}`);
+    //console.log(`Задача добавлена с ID: ${newTaskRef.id}`);
   } catch (error) {
     console.error("Ошибка при добавлении задачи: ", error);
   }
@@ -207,7 +207,7 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
     const taskRef = doc(tasksCollectionRef, taskId);
     // Обновление задачи
     await updateDoc(taskRef, updatedTaskData);
-    console.log(`Задача с ID ${taskId} обновлена`);
+    //console.log(`Задача с ID ${taskId} обновлена`);
   } catch (error) {
     console.error("Ошибка при обновлении задачи: ", error);
   }
@@ -222,7 +222,7 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
     const taskRef = doc(tasksCollectionRef, taskId);
     // Обновление задачи
     await deleteDoc(taskRef);
-    console.log(`Задача с ID ${taskId} удалена`);
+    //console.log(`Задача с ID ${taskId} удалена`);
   } catch (error) {
     console.error("Ошибка при обновлении задачи: ", error);
   }
@@ -231,13 +231,7 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
 
  const updateTaskOrderInColumn=async(boardId,columnId,taskId,Index)=>{
   try {
-    // Ссылка на коллекцию задач внутри конкретной колонки
-    // const columnRef = doc(db, 'boards', boardId, 'columns', columnId);
-    // const tasksCollectionRef = collection(columnRef, 'tasks');
-    // const taskRef = doc(tasksCollectionRef, taskId);
-
-
-    // // Ссылка на документ board
+    // Ссылка на документ board
     const boardDocRef = doc(db, 'boards', boardId);
     
     // Ссылка на коллекцию columns внутри документа board
@@ -252,9 +246,6 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
     // Ссылка на конкретную задачу
     const taskDocRef = doc(tasksCollectionRef, taskId);
 
-
-
-
     // Обновление задачи
     await updateDoc(taskDocRef, {
       order_index: Index
@@ -266,6 +257,35 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
 
 
  }
+
+
+
+
+
+const moveTaskFromColumnToColumn = async (boardId, sourceColumnId, destinationColumnId, taskId) => {
+  // Получаем задачу из исходной колонки
+  const taskRef = doc(db, 'boards', boardId, 'columns', sourceColumnId, 'tasks', taskId);
+
+  const taskDoc = await getDoc(taskRef);
+  
+  if (taskDoc.exists()) {
+    const taskData = taskDoc.data();
+    //console.log('Задача найдена:', taskData);
+    
+    // Создаем задачу в целевой колонке
+    const newTaskRef = doc(db, 'boards', boardId, 'columns', destinationColumnId, 'tasks', taskId);
+    await setDoc(newTaskRef, taskData);
+    //console.log('Задача успешно перемещена в новую колонку');
+
+    // Удаляем задачу из старой колонки
+    await deleteDoc(taskRef);
+    //console.log('Задача удалена из старой колонки');
+  } else {
+    //console.log('Задача не найдена в исходной колонке.');
+  }
+};
+
+
 
 
  return {
@@ -283,6 +303,7 @@ const updateTask = async (boardId, columnId, taskId, updatedTaskData) => {
   fetchBoards,
   changeBoard,
   updateTaskOrderInColumn,
+  moveTaskFromColumnToColumn,
  }
 
 

@@ -71,12 +71,12 @@ const addTask = (columnId:string)=>{
 
 
     const saveTask=()=>{
-      console.log('saveTask',operation.value)  // addTask / EditTask
+      //console.log('saveTask',operation.value)  // addTask / EditTask
       // selectedTask.value
       // selectedTaskRow.value
       const FirestoreStore =  useFirestoreStore()
       if(operation.value=='addTask'){
-        console.log('addTask')
+       // console.log('addTask')
         FirestoreStore.addTaskToColumn(selectedBoard.value.boardId,SelectedTaskRow.value.columnRow,{
           title: selectedTask.value.title,
           date: selectedTask.value.date,
@@ -85,7 +85,7 @@ const addTask = (columnId:string)=>{
         })
       }
       if(operation.value=='EditTask'){
-        console.log('EditTask')
+       // console.log('EditTask')
 
         const columnId=columns.value[SelectedTaskRow.value.columnRow].id
         const taskId=columns.value[SelectedTaskRow.value.columnRow].tasks[SelectedTaskRow.value.taskRow].id
@@ -110,7 +110,7 @@ const addTask = (columnId:string)=>{
 
 
     const editTask=(task:Task,columnIndex:number,taskIndex:number)=>{
-      console.log('editTask',columnIndex,taskIndex)
+     // console.log('editTask',columnIndex,taskIndex)
 
       selectedTask.value={...task}
       titlePage.value='Edit task'
@@ -145,7 +145,7 @@ const addTask = (columnId:string)=>{
         },
         () => {  
           //  onCancel
-          console.log('Deletion canceled')
+          //console.log('Deletion canceled')
         }
       )
 
@@ -154,7 +154,7 @@ const addTask = (columnId:string)=>{
  
 
     const cancelTask=()=>{
-      console.log('cancelTask');
+      //console.log('cancelTask');
       router.push('/')
     }
 
@@ -163,7 +163,7 @@ const addTask = (columnId:string)=>{
 
     const { oldIndex, newIndex } = event;
 
-    console.log('oldIndex',oldIndex,'newIndex',newIndex,'columnIndex',columnIndex);
+   // console.log('oldIndex',oldIndex,'newIndex',newIndex,'columnIndex',columnIndex);
     
 
     //console.log(`Задача перемещена внутри колонки ${kanban2Store.columns[columnIndex].title}`);
@@ -199,8 +199,9 @@ console.log('newColumnIndex',newColumnIndex);
 
 let addednewTaskIndex : number
 let addedColumnIndex: number
+let addColumnId: number
 
-const seeChange=(event: any, columnIndex:number)=>{
+const seeChange=async (event: any, columnIndex:number)=>{
   //console.log('seeChange',event, col)
 
   if (event.added) {
@@ -209,8 +210,9 @@ const seeChange=(event: any, columnIndex:number)=>{
 
     addednewTaskIndex = event.added.newIndex;
     addedColumnIndex = columnIndex
+    addColumnId = columns.value[columnIndex].id
 
-    console.log(`Задача добавлена в колонку ${columns.value[columnIndex].id} на индекс ${newTaskIndex}`);
+   // console.log(`Задача добавлена в колонку ${columns.value[columnIndex].id} на индекс ${newTaskIndex}`);
     
    //обновить 
 
@@ -224,44 +226,43 @@ const seeChange=(event: any, columnIndex:number)=>{
     const removedTask = event.removed.element;
     const oldTaskIndex = event.removed.oldIndex;
 
-    console.log(`Задача удалена из колонки ${columns.value[columnIndex].id} с индекса ${oldTaskIndex}`);
+  //  console.log(`Задача удалена из колонки ${columns.value[columnIndex].id} с индекса ${oldTaskIndex}`);
     
-   // по завершению сначала будет added затем removed  если колонка меняется
-   // надо обновить order_index для исходной колонки для всех всех задач в этой колонке 
-   // потом и обновить order_index для новой колонки для всех всех задач в этой колонке
 
-   // удалить из старой колоки
-   // добавить в новую колонку
-   // обновить order_index для всех задач в этой колонке
-   // обновить order_index для всех задач в новой колонке
-    let columnId=columns.value[columnIndex].id
-
-     // для всех tasks обновить order_index
-
-     columns.value[columnIndex].tasks.forEach((task:any,index:number)=>{
-       FirestoreStore.updateTaskOrderInColumn(columnId,task.id,index)
-     })
-
-     columnId=columns.value[addedColumnIndex].id
-     columns.value[addedColumnIndex].tasks.forEach((task:any,index:number)=>{
-      FirestoreStore.updateTaskOrderInColumn(columnId,task.id,index)
-    })
-
-
-
+   let columnId=columns.value[columnIndex].id
 
     // Удаляем задачу из старой колонки
-    //await kanban2Store.removeTaskFromColumn(columnIndex, removedTask);
+    await FirestoreStore.moveTaskFromColumnToColumn(selectedBoard.value.boardId, columnId, addColumnId, removedTask.id);
+     // для всех tasks обновить order_index
+
+     //console.log('sorting old column');
+     
+     columns.value[columnIndex].tasks.forEach( async(task:any,index:number)=>{
+
+      await  FirestoreStore.updateTaskOrderInColumn(selectedBoard.value.boardId,columnId,task.id,index)
+     })
+
+    
+ //    console.log('sorting new column');
+     columnId=columns.value[addedColumnIndex].id
+     columns.value[addedColumnIndex].tasks.forEach( async(task:any,index:number)=>{
+      await FirestoreStore.updateTaskOrderInColumn(selectedBoard.value.boardId,columnId,task.id,index)
+    })
+
+    //console.log('end sorting');
+
+
+   
   }
 
   if (event.moved) {
-    console.log('Колонка не изменилась',event.moved.oldIndex,event.moved.newIndex);
+   // console.log('Колонка не изменилась',event.moved.oldIndex,event.moved.newIndex);
     // обновить order_index для колокни columnIndex
     const columnId=columns.value[columnIndex].id
     // для всех tasks обновить order_index
 
-    columns.value[columnIndex].tasks.forEach((task:any,index:number)=>{
-      FirestoreStore.updateTaskOrderInColumn(selectedBoard.value.boardId, columnId,task.id,index)
+    columns.value[columnIndex].tasks.forEach(async (task:any,index:number)=>{
+      await FirestoreStore.updateTaskOrderInColumn(selectedBoard.value.boardId, columnId,task.id,index)
     })
 
 
