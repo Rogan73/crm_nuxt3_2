@@ -3,7 +3,9 @@ import { ref } from "vue"
 import type {Task,SelectedTaskRow,SelectedBoard } from '@/types/kanban2types'
 import { useConfirmStore } from '@/stores/storeConfirm'
 import { useFirestoreStore } from "@/stores/firestore"
+import { useFirebase } from '@/composables/useFirebase'
 import { useRouter } from 'vue-router'
+
 
 
 export const useKanban2Store = defineStore("kanban2", () => {
@@ -13,9 +15,16 @@ export const useKanban2Store = defineStore("kanban2", () => {
   const selectedBoard=ref<SelectedBoard>({boardId:'boardId1',boardName:'mainboard'})
 
   const FirestoreStore= useFirestoreStore()
-  const   columns= ref<any[]>([])
-
   
+
+  const   columns= ref<any>([])
+
+  let sub2: (() => void) | undefined;
+
+    // хук на изменения
+    const { subscribeToDocument, subscribeToCollection } = useFirebase()
+
+  // загрузка данных
   FirestoreStore.LoadBoardData().then(() => {
 
     selectedBoard.value={
@@ -24,8 +33,95 @@ export const useKanban2Store = defineStore("kanban2", () => {
     }
 
     columns.value=FirestoreStore.columns
+
+    watcher()
     
   })
+
+ 
+// Подписка на данные доски
+
+const watcher = ()=>{
+
+// subscribeToDocument(`boards/${FirestoreStore.currentBoard.boardId}`, (data) => {
+//   console.log('Received board data:', data)
+//   //boardData.value = data
+// })
+
+// Подписка на колонки доски
+sub2 = subscribeToCollection(`boards/${FirestoreStore.currentBoard.boardId}/columns`, (columns_) => {
+
+  columns_.forEach(column => {
+    subscribeToCollection(`boards/${FirestoreStore.currentBoard.boardId}/columns/${column.id}/tasks`, (tasks) => {
+      if (startSee==false){
+        start_update_board()
+      }
+  })
+ })
+
+
+})
+
+}
+
+//-----------------
+const go_update_board=()=>{
+
+    FirestoreStore.fetchBoardData(FirestoreStore.currentBoard.boardId).then(() => {
+       columns.value=FirestoreStore.columns
+  })  
+
+}
+
+
+const stop_update5s=()=>{
+
+  if (btn_timer) {
+    clearInterval(btn_timer);
+    btn_timer = null; // Сбрасываем таймер для предотвращения возможных конфликтов
+  }
+
+}
+
+
+   const flag_update5s=ref(false)
+   let btn_timer_count=ref(0)
+   let btn_timer: ReturnType<typeof setInterval> | null = null;
+
+   const start_update_board=()=>{
+    
+
+       if (flag_update5s.value) return
+
+       console.log('start_update_board');
+
+       flag_update5s.value=true
+
+          btn_timer_count.value=0
+
+          btn_timer=setInterval( ()=>{
+            btn_timer_count.value++
+            if (btn_timer_count.value>5){
+              btn_timer_count.value=0
+              flag_update5s.value=false
+              
+              if (btn_timer) {
+                clearInterval(btn_timer);
+                btn_timer = null; // Сбрасываем таймер для предотвращения возможных конфликтов
+              }
+
+               go_update_board()
+
+            }
+
+          },1000)
+
+       
+
+          
+   }
+
+
 
 
 
@@ -74,6 +170,9 @@ const addTask = (columnId:string)=>{
       //console.log('saveTask',operation.value)  // addTask / EditTask
       // selectedTask.value
       // selectedTaskRow.value
+
+     no_update()
+
       const FirestoreStore =  useFirestoreStore()
       if(operation.value=='addTask'){
        // console.log('addTask')
@@ -111,7 +210,7 @@ const addTask = (columnId:string)=>{
 
     const editTask=(task:Task,columnIndex:number,taskIndex:number)=>{
      // console.log('editTask',columnIndex,taskIndex)
-
+      //startSee=true
       selectedTask.value={...task}
       titlePage.value='Edit task'
       operation.value='EditTask'
@@ -130,6 +229,8 @@ const addTask = (columnId:string)=>{
         'delete','Warning','Are you sure you want to delete this task?',
         async() => { 
           //onConfirm
+
+          no_update()
 
           const FirestoreStore =  useFirestoreStore()
 
@@ -155,24 +256,17 @@ const addTask = (columnId:string)=>{
 
     const cancelTask=()=>{
       //console.log('cancelTask');
+     //s startSee=false
+
       router.push('/')
     }
 
 
    const onTaskChange=(event: any,columnIndex:number)=>{
 
-    const { oldIndex, newIndex } = event;
+   // const { oldIndex, newIndex } = event;
 
-   // console.log('oldIndex',oldIndex,'newIndex',newIndex,'columnIndex',columnIndex);
-    
 
-    //console.log(`Задача перемещена внутри колонки ${kanban2Store.columns[columnIndex].title}`);
-    //updateTaskOrderInColumn(columnIndex, event.items);
-
-    // Обновление порядка задач, если они изменились местами
-/*     if (oldIndex !== newIndex) {
-      await this.updateTaskOrder();
-    } */
 
    }
 
@@ -200,9 +294,38 @@ console.log('newColumnIndex',newColumnIndex);
 let addednewTaskIndex : number
 let addedColumnIndex: number
 let addColumnId: number
+let startSee: boolean = false
+
+
+const set_startSee=(val: boolean)=>{
+  startSee = val
+  //console.log('startSee',startSee);
+}
+
+const no_update=()=>{
+  
+  startSee = true
+
+  setTimeout(() => {
+    startSee = false
+    //console.log('start   ',startSee);
+  },2000);
+  
+}
+
+no_update()
+
+
 
 const seeChange=async (event: any, columnIndex:number)=>{
   //console.log('seeChange',event, col)
+  startSee = true
+  //console.log('startSee',startSee);
+
+  setTimeout(() => {
+    startSee = false
+    //console.log('startSee',startSee);
+  },2500);
 
   if (event.added) {
     const addedTask = event.added.element;
@@ -268,6 +391,11 @@ const seeChange=async (event: any, columnIndex:number)=>{
 
   }
 
+
+  //startSee=false
+  //console.log('startSee',startSee);
+  
+
 }
 
 
@@ -287,6 +415,8 @@ const seeChange=async (event: any, columnIndex:number)=>{
         selectedTask,
         titlePage,
         operation,
+        flag_update5s,
+        btn_timer_count,
         addTask,
         editTask,
         deleteTask,
@@ -296,7 +426,10 @@ const seeChange=async (event: any, columnIndex:number)=>{
         ShowAlert,
         onTaskStart,
         onTaskEnd,
-        seeChange
+        seeChange,
+        set_startSee,
+        stop_update5s,
+        go_update_board,
 
 
     }

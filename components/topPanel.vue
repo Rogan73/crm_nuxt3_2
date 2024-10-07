@@ -29,6 +29,8 @@ const toggleColorMode = () => {
   colorMode.preference = colorMode.value === 'light' ? 'dark' : 'light'
 }
 
+const show_btn_update=ref(false)
+
 const title=computed(()=>{
   //const name=kanbanStore.state.boards.length > 0 ? kanbanStore.state.boards[kanbanStore.state.selected_board_row].name : ''
  return  FirestoreStore.currentBoard.boardName//`${kanbanStore.state.title}`
@@ -40,6 +42,17 @@ const changeBoard = (id:string) => {
   boardIsOpen.value=false;
 }
 
+
+const stop_update = () => {
+  Kanban2Store.stop_update5s()
+  show_btn_update.value=true;
+}
+
+const go_update=()=>{
+  Kanban2Store.go_update_board()
+  show_btn_update.value=false;
+  Kanban2Store.flag_update5s=false;
+}
 
 onMounted(() => {
 
@@ -120,6 +133,15 @@ onBeforeUnmount(() => {
         >
           {{(board as any).title }}
         </div>
+
+      </div>
+
+      <div v-if="Kanban2Store.flag_update5s">
+
+        <BtnR v-if="show_btn_update"
+        @click="go_update()">Update</BtnR>
+        <BtnR v-if="!show_btn_update" @click="stop_update()"
+        > update({{ 5-Kanban2Store.btn_timer_count }}) Stop</BtnR>
 
       </div>
 

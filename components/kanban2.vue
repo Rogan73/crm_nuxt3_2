@@ -1,15 +1,31 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, ref } from "vue"
 import draggable from "vuedraggable"
 import {glass } from '@/utils/ClassList'                       
 import TaskCard from "@/components/taskCard2.vue"
 import { useKanban2Store } from '@/stores/kanban2'
 import iPlus from '@/components/icons/iPlus.vue'
+import {useFirestoreStore} from '@/stores/firestore'
 
 const kanban2Store = useKanban2Store()   
 
 const getTaskIndex = (columnIndex:number,taskId:number) => {
   return kanban2Store.columns[columnIndex].tasks.findIndex( (t:{id:number}) => t.id == taskId);
 };
+
+
+const columnsData = ref<Array<Record<string, any>>>([])
+
+
+
+const FirestoreStore=useFirestoreStore()
+
+
+
+
+
+
+
 </script>
 
 <template>
