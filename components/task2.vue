@@ -5,7 +5,7 @@ import iBack from '@/components/icons/iBack.vue'
 import iSave from '@/components/icons/iSave.vue'
 import { Input,glass } from '@/utils/ClassList'
 import textareaAuto from '@/components/textareaAuto.vue'
-
+import  {fDateFromYMDToDMY} from '@/utils/dateUtils'
 
 
 const kanban2Store = useKanban2Store()
@@ -35,6 +35,25 @@ const taskPerson =computed( {
 )
 
 
+const date_deadline=computed( {
+    
+    get() {
+      return kanban2Store.selectedTask.date_deadline || '';
+    },
+    set(value: string) {
+        // пробразовать дату из dd.mm.yyyy в yyyy-mm-dd
+        const d=value.split('.').reverse().join('-')
+
+
+       let date=new Date(d)
+      // kanban2Store.selectedTask.date_deadline = date
+    }
+
+    }
+
+)
+
+
 </script>
 <template>
     
@@ -59,11 +78,13 @@ const taskPerson =computed( {
 
     </div>
 
-                <div class="flex flex-col gap-3 text-gray-500 dark:text-gray-300">
-    
+                <div class="flex flex-col gap-3 text-gray-500 dark:text-gray-300 ">
+                    
 
-                    <div :class="[glass,'shadow-lg p-8 flex gap-6 flex-col justify-between rounded-lg']" >
+                    <div :class="[glass,'shadow-lg p-8 flex gap-6 flex-col justify-between rounded-lg relative']" >
                     <!-- bg-white/80 backdrop-blur-sm dark:bg-slate-800/70 dark:border dark:border-slate-700/50 -->
+
+                    <div class="text-sm absolute top-2 right-10 dark:text-slate-400">{{ fDateFromYMDToDMY(kanban2Store.selectedTask.date) }}</div>
 
                         <div class ="flex gap-2 items-center ">
                             <label class="w-24 flex-shrink-0 font-bold" for="">Task Name</label>
@@ -80,6 +101,11 @@ const taskPerson =computed( {
                             <label class="w-24 flex-shrink-0 font-bold" for="">Person</label>
                             <input :class="[Input,'flex-grow text-slate-900']" type="text" v-model="taskPerson">
                         </div>
+
+                        <div class ="flex gap-2 items-start ">
+                            <label class="w-24 flex-shrink-0 font-bold" for="">Date deadline</label>
+                            <input :class="[Input,'flex-grow text-slate-900']" type="date" v-model="kanban2Store.selectedTask.date_deadline">
+                        </div>                        
                         
 
 

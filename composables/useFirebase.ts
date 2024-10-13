@@ -1,7 +1,7 @@
 import { ref, onUnmounted } from 'vue'
 import { getFirestore, collection, doc, onSnapshot, QuerySnapshot, DocumentSnapshot } from 'firebase/firestore'
 
-export function useFirebase() {
+export const useFirebase=() => {
   const db = getFirestore()
 
   const subscribeToCollection = (path: string, callback: (data: any[]) => void) => {

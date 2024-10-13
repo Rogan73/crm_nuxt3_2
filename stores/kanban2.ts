@@ -5,6 +5,7 @@ import { useConfirmStore } from '@/stores/storeConfirm'
 import { useFirestoreStore } from "@/stores/firestore"
 import { useFirebase } from '@/composables/useFirebase'
 import { useRouter } from 'vue-router'
+import { fDateToYMD,fDateToDMY, fDateFromYMDToDMY } from '@/utils/dateUtils'
 
 
 
@@ -15,6 +16,9 @@ export const useKanban2Store = defineStore("kanban2", () => {
   const selectedBoard=ref<SelectedBoard>({boardId:'boardId1',boardName:'mainboard'})
 
   const FirestoreStore= useFirestoreStore()
+
+  const showLeftPanel=ref(false)
+  const current_page=ref('main')
   
 
   const   columns= ref<any>([])
@@ -23,6 +27,10 @@ export const useKanban2Store = defineStore("kanban2", () => {
 
     // хук на изменения
     const { subscribeToDocument, subscribeToCollection } = useFirebase()
+
+   
+  
+
 
   // загрузка данных
   FirestoreStore.LoadBoardData().then(() => {
@@ -151,17 +159,23 @@ const ShowAlert=(text:String)=>{
 
 const addTask = (columnId:string)=>{
 
-  const { addTaskToColumn  } =  useFirestoreStore()
-  
-  addTaskToColumn(selectedBoard.value.boardId,columnId,{
-    
-      title: "--New task title--",
-      date: "--Sep 28--",
-      type: "--Feature Request--",
-      description: "--Task description--",
-      isOpen: false,
-    
-  })
+
+  const task:Task={
+        title: "",
+        date: fDateToYMD(new Date()) ,
+        date_deadline: fDateToYMD(new Date()) ,
+        type: "NEW",
+        description: "",
+        isOpen: false,
+  }
+
+  SelectedTaskRow.value.columnId=columnId;
+
+  selectedTask.value={...task}
+  titlePage.value='Add task'
+  operation.value='AddTask'
+  router.push('/task')
+
   
 }
 
@@ -171,17 +185,30 @@ const addTask = (columnId:string)=>{
       // selectedTask.value
       // selectedTaskRow.value
 
+      if (selectedTask.value.title==''){
+        ShowAlert('Task name cannot be empty')
+        return
+      }
+
      no_update()
 
       const FirestoreStore =  useFirestoreStore()
-      if(operation.value=='addTask'){
+      if(operation.value=='AddTask'){
        // console.log('addTask')
-        FirestoreStore.addTaskToColumn(selectedBoard.value.boardId,SelectedTaskRow.value.columnRow,{
-          title: selectedTask.value.title,
-          date: selectedTask.value.date,
-          type: selectedTask.value.type,
-          description: selectedTask.value.description
-        })
+       
+        FirestoreStore.addTaskToColumn(selectedBoard.value.boardId,SelectedTaskRow.value.columnId,
+          selectedTask.value
+        //   {
+        //   title: selectedTask.value.title,
+        //   date: selectedTask.value.date,
+        //   type: selectedTask.value.type,
+        //   description: selectedTask.value.description
+        // }
+      ).then(()=>{
+        router.push('/')
+      })
+
+
       }
       if(operation.value=='EditTask'){
        // console.log('EditTask')
@@ -189,12 +216,16 @@ const addTask = (columnId:string)=>{
         const columnId=columns.value[SelectedTaskRow.value.columnRow].id
         const taskId=columns.value[SelectedTaskRow.value.columnRow].tasks[SelectedTaskRow.value.taskRow].id
 
-        FirestoreStore.updateTask(selectedBoard.value.boardId,columnId,taskId,{
-          title: selectedTask.value.title,
-          date: selectedTask.value.date,
-          type: selectedTask.value.type,
-          description: selectedTask.value.description,
-        }).then(()=>{
+        FirestoreStore.updateTask(selectedBoard.value.boardId,columnId,taskId,
+          selectedTask.value
+        //   {
+        //   title: selectedTask.value.title,
+        //   date: selectedTask.value.date,
+        //   type: selectedTask.value.type,
+        //   description: selectedTask.value.description,
+
+        // }
+      ).then(()=>{
           columns.value[SelectedTaskRow.value.columnRow].tasks[SelectedTaskRow.value.taskRow]=selectedTask.value    
           router.push('/')
 
@@ -211,6 +242,10 @@ const addTask = (columnId:string)=>{
     const editTask=(task:Task,columnIndex:number,taskIndex:number)=>{
      // console.log('editTask',columnIndex,taskIndex)
       //startSee=true
+
+      SelectedTaskRow.value.columnRow=columnIndex
+      SelectedTaskRow.value.taskRow=taskIndex
+
       selectedTask.value={...task}
       titlePage.value='Edit task'
       operation.value='EditTask'
@@ -407,6 +442,16 @@ const seeChange=async (event: any, columnIndex:number)=>{
 // }
 
 
+const goTo=(page:string)=>{
+  showLeftPanel.value = false
+  current_page.value = page
+
+  if (page == 'main') page=''
+
+  router.push(`/${page}`)
+}
+
+
     return{
       
         columns,
@@ -417,6 +462,8 @@ const seeChange=async (event: any, columnIndex:number)=>{
         operation,
         flag_update5s,
         btn_timer_count,
+        showLeftPanel,
+        current_page,
         addTask,
         editTask,
         deleteTask,
@@ -430,6 +477,7 @@ const seeChange=async (event: any, columnIndex:number)=>{
         set_startSee,
         stop_update5s,
         go_update_board,
+        goTo,
 
 
     }

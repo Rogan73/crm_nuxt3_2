@@ -1,17 +1,26 @@
 import { getFirestore, collection, doc, setDoc, getDoc,getDocs, addDoc,query, where, updateDoc, deleteDoc } from 'firebase/firestore';
 import {useKanban2Store} from '@/stores/kanban2'
+import { useLists } from '@/composables/useLists'
+
+
 
 export const useFirestoreStore = defineStore("Firestore", () => {
 
 const db = getFirestore();
 
+const { fetchAllLists } = useLists()
+
 const authUser=ref({displayName: '', email: ''})
+
 
 
 const boards=ref([])
 const columns=ref([])
 const currentBoard=ref({boardId:'',boardName:''})
 
+const d_types=ref([])
+const d_personas=ref([])
+const d_professions=ref([])
 
 // Создание новой доски
 const createBoard = async (boardData) => {
@@ -22,7 +31,12 @@ const createBoard = async (boardData) => {
 
 
 
+// Получение ссылки на коллекцию types items
+const typesItemsRef = collection(db, 'lists', 'types', 'items');
 
+const professionsItemsRef = collection(db, 'lists', 'professions', 'items');
+
+const personasItemsRef = collection(db, 'lists', 'personas', 'items');
 
 
 
@@ -65,13 +79,22 @@ const fetchBoards = async () => {
    
 }
 
-const LoadBoardData = async () => {
 
-  
-  
+
+const LoadBoardData = async () => {
+   
   await fetchBoards() 
 
-  
+    fetchAllLists().then(({ types, personas, professions }) => {
+     d_types.value=types
+     d_personas.value=personas
+     d_professions.value=professions
+     //console.log('d_types', d_types.value);
+     //console.log('d_personas', d_personas.value);
+     //console.log('d_professions', d_professions.value);
+    })
+
+ 
 
     if (localStorage.currentBoard){
       currentBoard.value=JSON.parse(localStorage.currentBoard)
@@ -115,6 +138,9 @@ const fetchBoardData = async (boardId) => {
           id: taskDoc.id,
           ...taskDoc.data()
         }));
+        tasksData.forEach((task) => {
+          task.isOpen = false;
+        })
         return {
           id: columnDoc.id,
           title: columnDoc.data().title,
@@ -179,17 +205,30 @@ const changeBoard=(boardId)=>{
 const addTaskToColumn = async (boardId, columnId, taskData) => {
   try {
     // Ссылка на коллекцию задач внутри конкретной колонки
+    console.log('0',boardId,columnId)
+
     const columnRef = doc(db, 'boards', boardId, 'columns', columnId);
+
+    console.log('01')
+
     const tasksCollectionRef = collection(columnRef, 'tasks');
+
+    console.log('02')
+
     // Добавление новой задачи в коллекцию tasks
     const newTaskRef = await addDoc(tasksCollectionRef, taskData);
 
+    console.log('1')
+
     // Добавление в локальный массив   
     const columnIndex = columns.value.findIndex(column => column.id === columnId); 
+    console.log('2')
     columns.value[columnIndex].tasks.push({
       id: newTaskRef.id,
       ...taskData
     })
+
+    console.log('3')
 
     //console.log(`Задача добавлена с ID: ${newTaskRef.id}`);
   } catch (error) {
@@ -293,6 +332,9 @@ const moveTaskFromColumnToColumn = async (boardId, sourceColumnId, destinationCo
   columns,
   currentBoard,
   boards,
+  d_types,
+  d_personas,
+  d_professions,
   createBoard,
   logout,
   addTaskToColumn,

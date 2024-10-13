@@ -5,6 +5,7 @@ import { useKanban2Store } from '@/stores/kanban2'
 import iTrash from "@/components/icons/iTrash.vue"
 import iEdit from "~/components/icons/iEdit.vue"
 import type {  Task } from '@/types/kanban2types'
+import { fDateFromYMDToDMY } from '@/utils/dateUtils';
 
 const kanban2Store = useKanban2Store()   
 
@@ -16,7 +17,7 @@ const kanban2Store = useKanban2Store()
   }>()
 
 
-  const selected_task_id = ref<number>(-1)
+  const selected_task_id = ref<string>('')
 
   const badgeColor= computed(()=>{
     
@@ -33,9 +34,9 @@ const kanban2Store = useKanban2Store()
       })
 
 const selectTask = ()=>{
-  selected_task_id.value = props.task.id
+  selected_task_id.value = props.task.id || ''
 
-  const taskIndex=kanban2Store.columns[props.columnIndex].tasks.findIndex((task_: { id: number; }) => task_.id === props.task.id)
+  const taskIndex=kanban2Store.columns[props.columnIndex].tasks.findIndex((task_: { id: string; }) => task_.id == props.task.id)
   kanban2Store.columns[props.columnIndex].tasks[taskIndex].isOpen = !kanban2Store.columns[props.columnIndex].tasks[taskIndex].isOpen
 
   kanban2Store.SelectedTaskRow={columnRow:props.columnIndex,taskRow:taskIndex}
@@ -78,8 +79,13 @@ const selectTask = ()=>{
 
 
       <div class="flex mt-4 justify-between items-center ">
-        <span class="text-sm text-gray-600 dark:text-gray-400 ">{{task.date}}</span>
+        <span class="text-sm text-gray-600 dark:text-gray-400 ">{{ fDateFromYMDToDMY(task.date) }}</span>
         <badge v-if="task.type" :class="[badgeColor,'text-gray-200 ']" >{{task.type}}</badge>
+      </div>
+      <div>
+          <div v-if="task.date_deadline"
+          class="text-sm text-orange-800 dark:text-orange-400"
+          >{{ fDateFromYMDToDMY(task.date_deadline) }}</div>
       </div>
 
       <!-- кнопки -->

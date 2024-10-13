@@ -9,4 +9,10 @@ definePageMeta({
 
 <template>
     <task2 />
+
+
+    <transition name="fade">
+     <ConfirmDialog/>
+   </transition>
+
  </template>

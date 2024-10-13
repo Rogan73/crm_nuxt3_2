@@ -32,8 +32,8 @@ const FirestoreStore=useFirestoreStore()
 
 
     
-    <div class="flex justify-center px-6">
-      <div class="flex w-[98vw] justify-between gap-4 mx-auto">
+    
+      <div class="flex w-[100vw] px-4 justify-between gap-4 mx-auto">
     
         <div
           v-for="(column, index) in kanban2Store.columns"
@@ -69,7 +69,7 @@ const FirestoreStore=useFirestoreStore()
           </draggable>
         </div>
       </div>
-    </div>
+    
 
 
 </template>
