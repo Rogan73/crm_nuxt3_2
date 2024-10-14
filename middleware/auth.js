@@ -11,6 +11,9 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
     const user = await new Promise((resolve) => {
       onAuthStateChanged($authFB, (user) => {
         resolve(user);
+
+          
+
       });
     });
 

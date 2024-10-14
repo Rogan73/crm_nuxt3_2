@@ -22,6 +22,14 @@ const d_types=ref([])
 const d_personas=ref([])
 const d_professions=ref([])
 
+const EditRowNom=ref(-1)
+
+const setEditRowNom=(id)=>{
+
+  EditRowNom.value=d_types.value.findIndex(x=>x.id==id)
+
+}
+
 // Создание новой доски
 const createBoard = async (boardData) => {
   const newBoardRef = doc(collection(db, 'boards'));
@@ -335,6 +343,7 @@ const moveTaskFromColumnToColumn = async (boardId, sourceColumnId, destinationCo
   d_types,
   d_personas,
   d_professions,
+  EditRowNom,
   createBoard,
   logout,
   addTaskToColumn,
@@ -346,6 +355,7 @@ const moveTaskFromColumnToColumn = async (boardId, sourceColumnId, destinationCo
   changeBoard,
   updateTaskOrderInColumn,
   moveTaskFromColumnToColumn,
+  setEditRowNom,
  }
 
 

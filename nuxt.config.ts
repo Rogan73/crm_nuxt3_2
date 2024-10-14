@@ -2,6 +2,20 @@ import { resolve } from 'path'
 import { defineNuxtConfig } from 'nuxt/config'
 
 export default defineNuxtConfig({
+  hooks: {
+    'pages:extend'(pages) {
+      console.log('Available routes:', pages.map(page => page.path))
+    }
+  },
+
+  // router: {
+  //   routes: () => [{
+  //     name: 'types-id',
+  //     path: '/types/:id',
+  //     component: '~/pages/types/[id].vue'
+  //   }]
+  // },  
+
   ssr: false, // Отключаем серверное рендеринг
   
   alias: {
